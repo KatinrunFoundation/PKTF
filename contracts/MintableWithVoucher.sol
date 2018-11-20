@@ -4,6 +4,7 @@ import "./PrivateToken.sol";
 
 contract MintableWithVoucher is PrivateToken {
     mapping(uint256 => bool) usedVouchers;
+    mapping(bytes32 => uint32) holderRedemptionCount;
     
     event VoucherUsed(uint256, uint256, uint256,  uint256, uint256, address, bytes32 socialHash);
 
@@ -12,13 +13,16 @@ contract MintableWithVoucher is PrivateToken {
         _;
     }
     
-    function markVoucherAsUsed(uint256 runnigNumber) public {
+    function markVoucherAsUsed(uint256 runnigNumber) private {
         usedVouchers[runnigNumber] = true;
+    }
+
+    function getHolderRedemptionCount(bytes32 socialHash) public view returns(uint32) {
+        return holderRedemptionCount[socialHash];
     }
 
     // Implement voucher system
     function redeemVoucher(
-        // bytes32 hash, 
         uint8 _v, 
         bytes32 _r, 
         bytes32 _s, 
@@ -27,23 +31,24 @@ contract MintableWithVoucher is PrivateToken {
         uint256 amount, 
         uint256 expired,
         uint256 parity,
-        address receiver, bytes32 socialHash) 
-        public 
-        isVoucherUnUsed(runnigNumber)
-        {
-
+        address receiver,
+        bytes32 socialHash
+    )  public isVoucherUnUsed(runnigNumber) {
         require(!isFreezed);
         
-        bytes32 hash = keccak256(abi.encodePacked(
-            "running:", 
-            runnigNumber,
-            " Coupon for ",
-            amount,
-            " KTF expired ",
-            expired
-            ,
-            " ",
-            parity));
+        bytes32 hash = keccak256(
+            abi.encodePacked(
+                "running:", 
+                runnigNumber,
+                " Coupon for ",
+                amount,
+                " KTF expired ",
+                expired
+                ,
+                " ",
+                parity
+            )
+        );
             
         require(ecrecover(hash, _v, _r, _s) == owner());
 
@@ -54,6 +59,8 @@ contract MintableWithVoucher is PrivateToken {
         _recordNewTokenHolder(receiver);
 
         markVoucherAsUsed(runnigNumber);
+
+        holderRedemptionCount[socialHash]++;
 
         emit VoucherUsed(expire, runnigNumber, amount,  expired, parity, receiver, socialHash);
     }
