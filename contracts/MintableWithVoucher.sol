@@ -3,6 +3,17 @@ pragma solidity ^0.4.23;
 import "./PrivateToken.sol";
 
 contract MintableWithVoucher is PrivateToken {
+    mapping(uint256 => bool) usedVouchers;
+
+    function markVoucherAsUsed(uint256 runnigNumber) public {
+        usedVouchers[runnigNumber] = true;
+    }
+
+    modifier isVoucherUnUsed(uint256 runnigNumber){
+        require(!usedVouchers[runnigNumber]);
+        _;
+    }
+
     // Implement voucher system
     function redeemVoucher(
         // bytes32 hash, 
@@ -15,9 +26,12 @@ contract MintableWithVoucher is PrivateToken {
         uint256 expired,
         uint256 parity,
         address receiver, bytes32 socialHash) 
-        public {
+        public 
+        isVoucherUnUsed(runnigNumber)
+        {
 
         require(!isFreezed);
+        require();
         
         bytes32 hash = keccak256(abi.encodePacked(
             "running:", 
@@ -36,6 +50,8 @@ contract MintableWithVoucher is PrivateToken {
 
         // Record new holder
         _recordNewTokenHolder(msg.sender);
+
+        markVoucherAsUsed(runnigNumber);
     }
 
     modifier mustSignByOwner(bytes32 hash, uint8 _v, bytes32 _r, bytes32 _s) {
