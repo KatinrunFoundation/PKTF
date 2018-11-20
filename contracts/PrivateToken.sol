@@ -42,8 +42,8 @@ contract PrivateToken is PartialERC20, Ownable {
         if(balanceOf(holder) == 0) {
             // delete holder in holders
             uint index = indexOfHolders[holder];
+            
             if(index < 0) return;
-
             if (holders.length > 1) {
                 holders[index] = holders[holders.length - 1];
             }
