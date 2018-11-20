@@ -11,16 +11,22 @@ import "./PartialERC20.sol";
 *       Step2: Loop mint for all holders on a production token.
 */  
 contract PrivateToken is PartialERC20, Ownable {
+    
+    uint256 public tokenHoldersCount = 0;
+    bool public isFreezed = false;
+    
+    uint256 public totalSupply;  
+    string public name;  
+    string public symbol;  
+    uint32 public decimals; 
+    
     address[] public holders;
-    uint256 public tokenHoldersCount;
-    bool public isFreezed;
-
-    mapping(address => uint) indexOfHolders;
+    mapping(address => uint256) indexOfHolders;
 
     event Freezed(address);
 
     function isTokenHolder(address addr) public view returns(bool) {
-        return indexOfHolders[address] >= 0;        
+        return indexOfHolders[addr] > 0;        
     }
 
     function freeze() public onlyOwner {
@@ -33,8 +39,8 @@ contract PrivateToken is PartialERC20, Ownable {
         // Record new holder
         if (!isTokenHolder(holder)) {
             holders.push(holder);
-            indexOfHolders[holder] = tokenHolderCout;
-            tokenHolderCout++;
+            indexOfHolders[holder] = tokenHoldersCount;
+            tokenHoldersCount++;
         }
     }
 
@@ -42,14 +48,14 @@ contract PrivateToken is PartialERC20, Ownable {
         if(balanceOf(holder) == 0) {
             // delete holder in holders
             uint index = indexOfHolders[holder];
-            
             if(index < 0) return;
+
             if (holders.length > 1) {
                 holders[index] = holders[holders.length - 1];
             }
-            tokenHolderCout--;
+            tokenHoldersCount--;
             holders.length--;
-            indexOfHolders[holder] = -1;
+            indexOfHolders[holder] = 0;
         }
     }
 
@@ -78,15 +84,14 @@ contract PrivateToken is PartialERC20, Ownable {
     function transferFrom(address from, address to, uint256 value) public returns (bool) {
         require(!isFreezed);
 
-        _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
-        _transfer(from, to, value);
+        //_allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
+        //_transfer(from, to, value);
         
         // Record new holder
         _recordNewTokenHolder(msg.sender);
         
         return true;
     }
-
 
     /**
         * @dev Internal function that burns an amount of the token of a given
@@ -102,10 +107,9 @@ contract PrivateToken is PartialERC20, Ownable {
     }
 
     /**  
-        * @title Holders count
         * @dev Return number of token holders
         */  
     function tokenHoldersCount() public view returns (uint256) {
-
+        return tokenHoldersCount;
     }
 }

@@ -4,10 +4,6 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";  
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
-
-
-
-
 // /**  
 // * @title BearToken is a basic ERC20 Token  
 // */ 

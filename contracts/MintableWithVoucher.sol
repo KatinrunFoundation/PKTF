@@ -4,14 +4,16 @@ import "./PrivateToken.sol";
 
 contract MintableWithVoucher is PrivateToken {
     mapping(uint256 => bool) usedVouchers;
+    
+    event VoucherUsed(uint256, uint256, uint256,  uint256, uint256, address, bytes32 socialHash);
 
-    function markVoucherAsUsed(uint256 runnigNumber) public {
-        usedVouchers[runnigNumber] = true;
-    }
-
-    modifier isVoucherUnUsed(uint256 runnigNumber){
+    modifier isVoucherUnUsed(uint256 runnigNumber) {
         require(!usedVouchers[runnigNumber]);
         _;
+    }
+    
+    function markVoucherAsUsed(uint256 runnigNumber) public {
+        usedVouchers[runnigNumber] = true;
     }
 
     // Implement voucher system
@@ -42,11 +44,11 @@ contract MintableWithVoucher is PrivateToken {
             ,
             " ",
             parity));
-        
-        require(ecrecover(hash, _v, _r, _s) == owner);
+            
+        require(ecrecover(hash, _v, _r, _s) == owner());
 
         // Mint
-        _mint(receiver, value);
+        _mint(receiver, amount);
 
         // Record new holder
         _recordNewTokenHolder(receiver);
@@ -60,14 +62,13 @@ contract MintableWithVoucher is PrivateToken {
     //     require(ecrecover(hash, _v, _r, _s) == owner);
     //     _;
     // }
-
-
+    
     /**
-    * @dev Function to mint tokens
-    * @param to The address that will receive the minted tokens.
-    * @param value The amount of tokens to mint.
-    * @return A boolean that indicates if the operation was successful.
-    */
+        * @dev Function to mint tokens
+        * @param to The address that will receive the minted tokens.
+        * @param value The amount of tokens to mint.
+        * @return A boolean that indicates if the operation was successful.
+        */
     function mint(address to,uint256 value) 
         public
         onlyOwner // todo: or onlyMinter
@@ -83,9 +84,9 @@ contract MintableWithVoucher is PrivateToken {
     }
 
     /**
-    * @dev Burns a specific amount of tokens.
-    * @param value The amount of token to be burned.
-    */
+        * @dev Burns a specific amount of tokens.
+        * @param value The amount of token to be burned.
+        */
     function burn(uint256 value) public onlyOwner {
 
         require(!isFreezed);
