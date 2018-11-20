@@ -11,30 +11,45 @@ import "./PartialERC20.sol";
 *       Step2: Loop mint for all holders on a production token.
 */  
 contract PrivateToken is PartialERC20, Ownable {
-    mapping(address => bool) public isTokenHolder;
     address[] public holders;
-    mapping(address => uint) indexOfHolders;
     uint256 public tokenHoldersCount;
     bool public isFreezed;
 
+    mapping(address => uint) indexOfHolders;
+
+    event Freezed(address);
+
+    function isTokenHolder(address addr) public view returns(bool) {
+        return indexOfHolders[address] >= 0;        
+    }
+
     function freeze() public onlyOwner {
         isFreezed = true;
+
+        emit Freezed(msg.sender);
     }
 
     function _recordNewTokenHolder(address holder) internal {
         // Record new holder
-        if (!isTokenHolder[holder]) {
+        if (!isTokenHolder(holder)) {
             holders.push(holder);
-            tokenHolderCout += 1;
+            indexOfHolders[holder] = tokenHolderCout;
+            tokenHolderCout++;
         }
     }
 
     function _removeTokenHolder(address holder) internal {
-        if(holder.balance == 0) {
-            isTokenHolder[holder] = false;
+        if(balanceOf(holder) == 0) {
             // delete holder in holders
             uint index = indexOfHolders[holder];
-            if(!index) return
+            if(index < 0) return;
+
+            if (holders.length > 1) {
+                holders[index] = holders[holders.length - 1];
+            }
+            tokenHolderCout--;
+            holders.length--;
+            indexOfHolders[holder] = -1;
         }
     }
 

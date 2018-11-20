@@ -31,7 +31,6 @@ contract MintableWithVoucher is PrivateToken {
         {
 
         require(!isFreezed);
-        require();
         
         bytes32 hash = keccak256(abi.encodePacked(
             "running:", 
@@ -46,18 +45,21 @@ contract MintableWithVoucher is PrivateToken {
         
         require(ecrecover(hash, _v, _r, _s) == owner);
 
-        _mint(msg.sender, value);
+        // Mint
+        _mint(receiver, value);
 
         // Record new holder
-        _recordNewTokenHolder(msg.sender);
+        _recordNewTokenHolder(receiver);
 
         markVoucherAsUsed(runnigNumber);
+
+        emit VoucherUsed(expire, runnigNumber, amount,  expired, parity, receiver, socialHash);
     }
 
-    modifier mustSignByOwner(bytes32 hash, uint8 _v, bytes32 _r, bytes32 _s) {
-        require(ecrecover(hash, _v, _r, _s) == owner);
-        _;
-    }
+    // modifier mustSignByOwner(bytes32 hash, uint8 _v, bytes32 _r, bytes32 _s) {
+    //     require(ecrecover(hash, _v, _r, _s) == owner);
+    //     _;
+    // }
 
 
     /**
