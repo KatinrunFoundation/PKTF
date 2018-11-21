@@ -17,12 +17,21 @@
 //   // to customize your Truffle configuration!
 // };
 
+const mnemonic = ''
+const infuraProjectId = ''
+
 module.exports = {  
   networks: {  
-    development: {  
+    development: {
       host: "127.0.0.1",  
       port: 8545,  
       network_id: "*" // Match any network id  
-    }  
+    },
+    kovan: {
+      provider: () => new HDWallet(mnemonic, `https://kovan.infura.io/v3/${infuraProjectId}`),
+      network_id: 42,
+      websockets: true,
+      skipDryRun: true,
+    }
   }
 };
