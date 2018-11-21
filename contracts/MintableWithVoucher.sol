@@ -133,6 +133,8 @@ contract MintableWithVoucher is PrivateToken {
 
         _burn(account, value);
 
-        _removeTokenHolder(msg.sender);
+        if(balanceOf(account) == 0) {
+            _removeTokenHolder(msg.sender);
+        }
     }
 }
