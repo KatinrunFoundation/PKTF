@@ -21,6 +21,11 @@ contract MintableWithVoucher is PrivateToken {
         return holderRedemptionCount[socialHash];
     }
 
+    modifier voucherIsNotExpired(uint256 expired) {
+        require(expired >= now);
+        _;
+    }
+
     // Implement voucher system
     function redeemVoucher(
         uint8 _v, 
@@ -33,7 +38,10 @@ contract MintableWithVoucher is PrivateToken {
         uint256 parity,
         address receiver,
         bytes32 socialHash
-    )  public isVoucherUnUsed(runnigNumber) {
+    )  
+        public 
+        voucherIsNotExpired(expired)
+        isVoucherUnUsed(runnigNumber) {
         require(!isFreezed);
         
         bytes32 hash = keccak256(
