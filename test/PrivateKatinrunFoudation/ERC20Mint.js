@@ -71,18 +71,10 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
         assert.equal(isTokenHolder, false)
       }
     } catch (err) {
-      const numberOfTokenHolders = await instance.numberOfTokenHolders()
-      const totalSupply = await instance.totalSupply()
-      const expectedTotalSupplyStrig = web3.utils.toWei(expectedTotalSupply.toString(10), "ether")
-
-      assert.equal(numberOfTokenHolders.toString(10), expectedTokenHolders.toString(10), `Holders count should be ${expectedTokenHolders.toString(10)}`)
-      assert.equal(totalSupply.toString(10), expectedTotalSupplyStrig, `Total supply should be ${expectedTotalSupplyStrig}`)
-      
-      if (targetAccount !== undefined) {
-        const isTokenHolder = await instance.isTokenHolder(targetAccount)
-        assert.equal(isTokenHolder, true)
-      }
+      assert(err);
+      return;
     }
+    assert(false)
   }
 
   describe('Mint to owner', async() => {
