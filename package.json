@@ -2,7 +2,8 @@
   "scripts": {
     "compile": "truffle compile",
     "migrate": "truffle migrate",
-    "test": "truffle test"
+    "test": "truffle test",
+    "version": "truffle version"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
