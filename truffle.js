@@ -16,6 +16,7 @@
 //   // See <http://truffleframework.com/docs/advanced/configuration>
 //   // to customize your Truffle configuration!
 // };
+const HDWallet = require('truffle-hdwallet-provider');
 
 const mnemonic = ''
 const infuraProjectId = ''
