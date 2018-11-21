@@ -12,7 +12,6 @@ import "./PartialERC20.sol";
 */  
 contract PrivateToken is PartialERC20, Ownable {
     
-    uint256 public tokenHoldersCount = 0;
     bool public isFreezed = false;
     
     uint256 public totalSupply;  
@@ -21,17 +20,16 @@ contract PrivateToken is PartialERC20, Ownable {
     uint32 public decimals; 
     
     address[] public holders;
-    mapping(address => uint256) indexOfHolders;
+    mapping(address => uint64) indexOfHolders;
 
     event Freezed(address);
+    
+    function numberOfTokenHolders() public view returns(uint64) {
+        return uint64(holders.length);
+    }
 
     function isTokenHolder(address addr) public view returns(bool) {
         return indexOfHolders[addr] > 0;        
-    }
-
-    modifier isNotFreezed() {
-        require(!isFreezed);
-        _;
     }
 
     function freeze() public onlyOwner {
@@ -40,72 +38,78 @@ contract PrivateToken is PartialERC20, Ownable {
         emit Freezed(msg.sender);
     }
 
-    function _recordNewTokenHolder(address holder) internal {
+    function _recordNewTokenHolder(address holder) public {
         // Record new holder
         if (!isTokenHolder(holder)) {
             holders.push(holder);
-            indexOfHolders[holder] = tokenHoldersCount;
-            tokenHoldersCount++;
+            indexOfHolders[holder] = uint64(holders.length);
         }
     }
 
-    function _removeTokenHolder(address holder) internal {
-        if(balanceOf(holder) == 0) {
-            // delete holder in holders
-            uint index = indexOfHolders[holder];
-            if(index < 0) return;
+    function _removeTokenHolder(address holder) public {
+        //check if holder exist
+        require(isTokenHolder(holder));
+        
+        // delete holder in holders
+        uint64 index = indexOfHolders[holder] - 1;
 
-            if (holders.length > 1) {
-                holders[index] = holders[holders.length - 1];
-            }
-            tokenHoldersCount--;
-            holders.length--;
-            indexOfHolders[holder] = 0;
+        if (holders.length > 1 && index != holders.length - 1) {
+            //swap two elements of the array
+            address lastHolder = holders[holders.length - 1];
+            holders[holders.length - 1] = holders[index];
+            holders[index] = lastHolder;
+            
+            indexOfHolders[lastHolder] = indexOfHolders[holder];
         }
+        holders.length--;
+        indexOfHolders[holder] = 0;
     }
 
     /**
-        * @dev Transfer token for a specified address
-        * @param to The address to transfer to.
-        * @param value The amount to be transferred.
-        */
-    function transfer(address to, uint256 value) 
-        public 
-        isNotFreezed
-        returns (bool) {
+    * @dev Transfer token for a specified address
+    * @param to The address to transfer to.
+    * @param value The amount to be transferred.
+    */
+    function transfer(address to, uint256 value) public returns (bool) {
+        require(!isFreezed);
 
         _transfer(msg.sender, to, value);
 
         // Record new holder
-        _recordNewTokenHolder(to);
+        _recordNewTokenHolder(msg.sender);
 
         return true;
     }
 
     /**
-        * @dev Transfer tokens from one address to another
-        * @param from address The address which you want to send tokens from
-        * @param to address The address which you want to transfer to
-        * @param value uint256 the amount of tokens to be transferred
-        */
-    function transferFrom(address from, address to, uint256 value) 
-        public 
-        isNotFreezed
-        returns (bool) {
+    * @dev Transfer tokens from one address to another
+    * @param from address The address which you want to send tokens from
+    * @param to address The address which you want to transfer to
+    * @param value uint256 the amount of tokens to be transferred
+    */
+    function transferFrom(address from, address to, uint256 value) public returns (bool) {
+        require(!isFreezed);
 
-        // _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
-        // _transfer(from, to, value);
+        //_allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
+        //_transfer(from, to, value);
         
         // Record new holder
-        _recordNewTokenHolder(to);
+        _recordNewTokenHolder(msg.sender);
         
         return true;
     }
 
-    /**  
-        * @dev Return number of token holders
-        */  
-    function tokenHoldersCount() public view returns (uint256) {
-        return tokenHoldersCount;
+
+    /**
+    * @dev Internal function that burns an amount of the token of a given
+    * account.
+    * @param account The account whose tokens will be burnt.
+    * @param value The amount that will be burnt.
+    */
+    function burn(address account, uint256 value) internal onlyOwner {
+        require(account != address(0));
+        require(!isFreezed);
+
+        _burn(account, value);
     }
 }
