@@ -93,7 +93,7 @@ contract MintableWithVoucher is PrivateToken {
         _mint(to, value);
 
         // Record new holder
-        _recordNewTokenHolder(msg.sender);
+        _recordNewTokenHolder(to);
 
         return true;
     }
