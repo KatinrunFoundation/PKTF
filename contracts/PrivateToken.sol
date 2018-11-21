@@ -24,9 +24,9 @@ contract PrivateToken is PartialERC20, Ownable {
     address[] public holders;
     mapping(address => uint32) indexOfHolders;
 
-    event Freezed(address);
-    event RecordNewTokenHolder(address);
-    event RemoveTokenHolder(address);
+    event Freezed(address commander);
+    event RecordNewTokenHolder(address holder);
+    event RemoveTokenHolder(address holder);
     
     function numberOfTokenHolders() public view returns(uint32) {
         return uint32(holders.length);
