@@ -16,7 +16,7 @@ contract PrivateKatinrunFoudation is MintableWithVoucher {
         
         _balances[msg.sender] = _totalSupply;  
 
-        emit Transfer(0x0, msg.sender, _totalSupply);  
+        // emit Transfer(0x0, msg.sender, _totalSupply);  
     }
     
 }
