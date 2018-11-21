@@ -44,25 +44,44 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
     assert.equal(numberOfTokenHolders.toString(10), expectedTokenHolders.toString(10), `Holders count should be ${expectedTokenHolders.toString(10)}`)
   }
 
-  async function burnOwner(value, sender) {
-    amountToBurn = web3.utils.toWei(value, "ether") 
+  async function burnOwner(value, sender, targetAccount) {
+    amountToBurn = web3.utils.toWei(value, "ether")
     try {
-      await instance.burn(
-        amountToBurn,
-        {from: sender}
-      )
+      if (targetAccount !== undefined) {
+        await instance.burn(
+          targetAccount,
+          amountToBurn,
+          {from: sender}
+        )
+      } else {
+        await instance.burn(
+          amountToBurn,
+          {from: sender}
+        )
+      }
       const numberOfTokenHolders = await instance.numberOfTokenHolders()
       const totalSupply = await instance.totalSupply()
       const expectedTotalSupplyStrig = web3.utils.toWei(expectedTotalSupply.minus(BigNumber(value)).toString(10), "ether")
 
       assert.equal(numberOfTokenHolders.toString(10), expectedTokenHolders.minus(BigNumber('1')).toString(10), `Holders count should be ${expectedTokenHolders.toString(10)}`)
       assert.equal(totalSupply.toString(10), expectedTotalSupplyStrig, `Total supply should be ${expectedTotalSupplyStrig}`)
+      
+      if (targetAccount !== undefined) {
+        const isTokenHolder = await instance.isTokenHolder(targetAccount)
+        assert.equal(isTokenHolder, false)
+      }
     } catch (err) {
       const numberOfTokenHolders = await instance.numberOfTokenHolders()
       const totalSupply = await instance.totalSupply()
       const expectedTotalSupplyStrig = web3.utils.toWei(expectedTotalSupply.toString(10), "ether")
+
       assert.equal(numberOfTokenHolders.toString(10), expectedTokenHolders.toString(10), `Holders count should be ${expectedTokenHolders.toString(10)}`)
       assert.equal(totalSupply.toString(10), expectedTotalSupplyStrig, `Total supply should be ${expectedTotalSupplyStrig}`)
+      
+      if (targetAccount !== undefined) {
+        const isTokenHolder = await instance.isTokenHolder(targetAccount)
+        assert.equal(isTokenHolder, true)
+      }
     }
   }
 
@@ -145,12 +164,24 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
   describe('Burn Owner', async() => {
     it("Sender is Owner #1", async() => {
       const amountToBurn = web3.utils.toWei('1000000', "ether")
-      await burnOwner(amountToBurn, owner)
+      await burnOwner(amountToBurn, owner, undefined)
     })
 
     it("Sender is not Owner #2", async() => {
       const amountToBurn = '1000000'
-      await burnOwner(amountToBurn, user1)
+      await burnOwner(amountToBurn, user1, undefined)
+    })
+  })
+
+  describe('Burn specific account', async() => {
+    it("Sender is Owner #1", async() => {
+      const amountToBurn = web3.utils.toWei('1000000', "ether")
+      await burnOwner(amountToBurn, owner, user1)
+    })
+
+    it("Sender is not Owner #2", async() => {
+      const amountToBurn = '1000000'
+      await burnOwner(amountToBurn, user1, user1)
     })
   })
 })
