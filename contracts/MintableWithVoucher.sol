@@ -6,7 +6,15 @@ contract MintableWithVoucher is PrivateToken {
     mapping(uint256 => bool) usedVouchers;
     mapping(bytes32 => uint32) holderRedemptionCount;
     
-    event VoucherUsed(uint256, uint256, uint256,  uint256, uint256, address, bytes32 socialHash);
+    event VoucherUsed(
+        uint256 expire, 
+        uint256 runnigNumber, 
+        uint256 amount,  
+        uint256 expired, 
+        uint256 parity, 
+        address indexed receiver, // use indexed for easy to filter event
+        bytes32 socialHash
+    );
 
     modifier isVoucherUnUsed(uint256 runnigNumber) {
         require(!usedVouchers[runnigNumber]);
