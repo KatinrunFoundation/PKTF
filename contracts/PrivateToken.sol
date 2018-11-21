@@ -29,6 +29,11 @@ contract PrivateToken is PartialERC20, Ownable {
         return indexOfHolders[addr] > 0;        
     }
 
+    modifier isNotFreezed() {
+        require(!isFreezed);
+        _;
+    }
+
     function freeze() public onlyOwner {
         isFreezed = true;
 
@@ -64,8 +69,10 @@ contract PrivateToken is PartialERC20, Ownable {
         * @param to The address to transfer to.
         * @param value The amount to be transferred.
         */
-    function transfer(address to, uint256 value) public returns (bool) {
-        require(!isFreezed);
+    function transfer(address to, uint256 value) 
+        public 
+        isNotFreezed()
+        returns (bool) {
 
         _transfer(msg.sender, to, value);
 
@@ -81,11 +88,13 @@ contract PrivateToken is PartialERC20, Ownable {
         * @param to address The address which you want to transfer to
         * @param value uint256 the amount of tokens to be transferred
         */
-    function transferFrom(address from, address to, uint256 value) public returns (bool) {
-        require(!isFreezed);
+    function transferFrom(address from, address to, uint256 value) 
+        public 
+        isNotFreezed()
+        returns (bool) {
 
-        //_allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
-        //_transfer(from, to, value);
+        // _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
+        // _transfer(from, to, value);
         
         // Record new holder
         _recordNewTokenHolder(msg.sender);
@@ -99,9 +108,12 @@ contract PrivateToken is PartialERC20, Ownable {
         * @param account The account whose tokens will be burnt.
         * @param value The amount that will be burnt.
         */
-    function burn(address account, uint256 value) internal onlyOwner {
+    function burn(address account, uint256 value) 
+        internal 
+        onlyOwner
+        isNotFreezed()
+        {
         require(account != address(0));
-        require(!isFreezed);
 
         _burn(account, value);
     }

@@ -40,9 +40,9 @@ contract MintableWithVoucher is PrivateToken {
         bytes32 socialHash
     )  
         public 
+        isNotFreezed()
         voucherIsNotExpired(expired)
         isVoucherUnUsed(runnigNumber) {
-        require(!isFreezed);
         
         bytes32 hash = keccak256(
             abi.encodePacked(
@@ -87,9 +87,9 @@ contract MintableWithVoucher is PrivateToken {
     function mint(address to,uint256 value) 
         public
         onlyOwner // todo: or onlyMinter
+        isNotFreezed()
         returns (bool)
     {
-        require(!isFreezed);
         _mint(to, value);
 
         // Record new holder
@@ -102,9 +102,10 @@ contract MintableWithVoucher is PrivateToken {
         * @dev Burns a specific amount of tokens.
         * @param value The amount of token to be burned.
         */
-    function burn(uint256 value) public onlyOwner {
-
-        require(!isFreezed);
+    function burn(uint256 value) 
+        public
+        onlyOwner
+        isNotFreezed {
         _burn(msg.sender, value);
 
         _removeTokenHolder(msg.sender);
