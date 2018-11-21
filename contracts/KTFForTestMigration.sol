@@ -36,5 +36,27 @@ contract KTFForTestMigration is PartialERC20, Ownable {
 
         uint32 numberOfPKTFHolders = pktf.numberOfTokenHolders();
         
+        for(uint256 i = 0; i < numberOfPKTFHolders; i++) {
+          address user = pktf.holders(i);
+          uint256 balance = pktf.balanceOf(user);
+
+          mint(user, balance);
+        }
+    }
+
+    /**
+        * @dev Function to mint tokens
+        * @param to The address that will receive the minted tokens.
+        * @param value The amount of tokens to mint.
+        * @return A boolean that indicates if the operation was successful.
+        */
+    function mint(address to,uint256 value) 
+        public
+        onlyOwner
+        returns (bool)
+    {
+        _mint(to, value);
+
+        return true;
     }
 }
