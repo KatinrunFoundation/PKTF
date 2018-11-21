@@ -10,6 +10,7 @@ import "./PartialERC20.sol";
 *       Step1: call freeze()
 *       Step2: Loop mint for all holders on a production token.
 */  
+
 contract PrivateToken is PartialERC20, Ownable {
     
     bool public isFreezed = false;
@@ -23,6 +24,8 @@ contract PrivateToken is PartialERC20, Ownable {
     mapping(address => uint64) indexOfHolders;
 
     event Freezed(address);
+    event RecordNewTokenHolder(address);
+    event RemoveTokenHolder(address);
     
     function numberOfTokenHolders() public view returns(uint64) {
         return uint64(holders.length);
@@ -43,6 +46,8 @@ contract PrivateToken is PartialERC20, Ownable {
         if (!isTokenHolder(holder)) {
             holders.push(holder);
             indexOfHolders[holder] = uint64(holders.length);
+            
+            emit RecordNewTokenHolder(holder);
         }
     }
 
@@ -63,6 +68,8 @@ contract PrivateToken is PartialERC20, Ownable {
         }
         holders.length--;
         indexOfHolders[holder] = 0;
+        
+        emit RemoveTokenHolder(holder);
     }
 
     /**
