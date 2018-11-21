@@ -99,8 +99,7 @@ contract MintableWithVoucher is PrivateToken {
     }
 
     /**
-        * @title Only ower can burn themself.
-        * @dev Burns a specific amount of tokens.
+        * @dev Burns a specific amount of tokens. Only owner can burn themself.
         * @param value The amount of token to be burned.
         */
     function burn(uint256 value) 
