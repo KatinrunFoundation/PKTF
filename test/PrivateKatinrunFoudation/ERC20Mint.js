@@ -45,6 +45,12 @@ contract("PrivateKatinrunFoudation", accounts => {
       await mintTo(owner, amountToMint)
       await verifyBalance(owner, web3.toWei(4839330328329, "ether"))
     })
+
+    it("Mint to owner #4", async() => {
+      const amountToMint = web3.toWei(3293293203203238, "ether")
+      await mintTo(owner, amountToMint)
+      await verifyBalance(owner, web3.toWei(3298132533531567, "ether"))
+    })
   })
 
   describe('Mint to user1', async() => {
@@ -55,15 +61,23 @@ contract("PrivateKatinrunFoudation", accounts => {
     })
 
     it("Mint to user1 #2", async() => {
-      const amountToMint = web3.toWei(10000000000, "ether")
+      const amountToMint = web3.toWei(3892389219832893982, "ether")
       await mintTo(user1, amountToMint)
-      await verifyBalance(user1, web3.toWei(10001000000, "ether"))
+      await verifyBalance(user1, web3.toWei(3892389219833893982, "ether"))
+    })
+  })
+
+  describe('Mint to user2', async() => {
+    it("Mint to user2 #1", async() => {
+      const amountToMint = web3.toWei(1000000, "ether") 
+      await mintTo(user2, amountToMint)
+      await verifyBalance(user2, amountToMint)
     })
 
-    it("Mint to user1 #3", async() => {
-      const amountToMint = web3.toWei(4829329328329, "ether")
-      await mintTo(user1, amountToMint)
-      await verifyBalance(user1, web3.toWei(4839330328329, "ether"))
+    it("Mint to user2 #2", async() => {
+      const amountToMint = web3.toWei(439329320329038, "ether")
+      await mintTo(user2, amountToMint)
+      await verifyBalance(user2, web3.toWei(439329321329038, "ether"))
     })
   })
 })
