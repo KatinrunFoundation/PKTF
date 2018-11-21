@@ -54,23 +54,24 @@ contract PrivateToken is PartialERC20, Ownable {
 
     function _removeTokenHolder(address holder) internal {
         //check if holder exist
-        require(isTokenHolder(holder));
-        
-        // delete holder in holders
-        uint32 index = indexOfHolders[holder] - 1;
+        if (isTokenHolder(holder)) {
 
-        if (holders.length > 1 && index != uint32(holders.length - 1)) {
-            //swap two elements of the array
-            address lastHolder = holders[holders.length - 1];
-            holders[holders.length - 1] = holders[index];
-            holders[index] = lastHolder;
+            // delete holder in holders
+            uint32 index = indexOfHolders[holder] - 1;
+
+            if (holders.length > 1 && index != uint32(holders.length - 1)) {
+                //swap two elements of the array
+                address lastHolder = holders[holders.length - 1];
+                holders[holders.length - 1] = holders[index];
+                holders[index] = lastHolder;
+                
+                indexOfHolders[lastHolder] = indexOfHolders[holder];
+            }
+            holders.length--;
+            indexOfHolders[holder] = 0;
             
-            indexOfHolders[lastHolder] = indexOfHolders[holder];
+            emit RemoveTokenHolder(holder);
         }
-        holders.length--;
-        indexOfHolders[holder] = 0;
-        
-        emit RemoveTokenHolder(holder);
     }
 
     /**
@@ -101,8 +102,9 @@ contract PrivateToken is PartialERC20, Ownable {
         public 
         isNotFreezed
         returns (bool) {
-         // _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
-        // _transfer(from, to, value);
+
+        _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
+        _transfer(from, to, value);
         
         // Record new holder
         _recordNewTokenHolder(to);

@@ -112,10 +112,23 @@ contract MintableWithVoucher is PrivateToken {
         */
     function burn(uint256 value) 
         public
+        isNotFreezed {
+
+        _burn(msg.sender, value);
+        _removeTokenHolder(msg.sender);
+    }
+
+    /**
+        * @dev Burns a specific amount of tokens. Only owner can burn themself.
+        * @param value The amount of token to be burned.
+        */
+    function burn(address account, uint32 value) 
+        public
         onlyOwner
         isNotFreezed {
 
-        burn(msg.sender, value);
+        _burn(account, value);
+        _removeTokenHolder(account);
     }
 
     /**
@@ -124,15 +137,14 @@ contract MintableWithVoucher is PrivateToken {
         * @param account The account whose tokens will be burnt.
         * @param value The amount that will be burnt.
         */
-    function burn(address account, uint256 value) 
+    function burnFrom(address account, uint256 value) 
         public 
-        onlyOwner
         isNotFreezed
         {
         require(account != address(0));
 
-        _burn(account, value);
+        _burnFrom(account, value);
 
-        _removeTokenHolder(msg.sender);
+        _removeTokenHolder(account);
     }
 }
