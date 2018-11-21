@@ -8,6 +8,7 @@ contract("PrivateKatinrunFoudation", accounts => {
   let user1
   let user2
   let expectedTotalSupply = BigNumber('0')
+  let expectedTokenHolders = BigNumber('0')
 
   before('Init', async() => {
     instance = await PrivateKatinrunFoudation.deployed()
@@ -36,15 +37,22 @@ contract("PrivateKatinrunFoudation", accounts => {
     // console.log(`expectedTotalSupply ${expectedTotalSupplyStrig}`)
     // console.log(`totalSupply ${totalSupply.toString(10)}`)
     assert.equal(totalSupply.toString(10), expectedTotalSupplyStrig, `Total supply should be ${expectedTotalSupplyStrig}`)
-  } 
+  }
+
+  async function verifyTokenHolders() {
+    const numberOfTokenHolders = await instance.numberOfTokenHolders.call()
+    assert.equal(numberOfTokenHolders.toString(10), expectedTokenHolders.toString(10), `Holders count should be ${expectedTokenHolders.toString(10)}`)
+  }
 
   describe('Mint to owner', async() => {
     it("Mint to owner #1", async() => {
       const amountToMint = web3.toWei('1000000', "ether")
       expectedTotalSupply = expectedTotalSupply.plus(BigNumber('1000000'))
+      expectedTokenHolders = expectedTokenHolders.plus(BigNumber('1'))
       await mintTo(owner, amountToMint)
       await verifyBalance(owner, amountToMint)
       await verifyTotalSupply()
+      await verifyTokenHolders()
     })
 
     it("Mint to owner #2", async() => {
@@ -76,9 +84,11 @@ contract("PrivateKatinrunFoudation", accounts => {
     it("Mint to user1 #1", async() => {
       const amountToMint = web3.toWei('1000000', "ether") 
       expectedTotalSupply = expectedTotalSupply.plus(BigNumber('1000000'))
+      expectedTokenHolders = expectedTokenHolders.plus(BigNumber('1'))
       await mintTo(user1, amountToMint)
       await verifyBalance(user1, amountToMint)
       await verifyTotalSupply()
+      await verifyTokenHolders()
     })
 
     it("Mint to user1 #2", async() => {
@@ -94,9 +104,11 @@ contract("PrivateKatinrunFoudation", accounts => {
     it("Mint to user2 #1", async() => {
       const amountToMint = web3.toWei('1000000', "ether") 
       expectedTotalSupply = expectedTotalSupply.plus(BigNumber('1000000'))
+      expectedTokenHolders = expectedTokenHolders.plus(BigNumber('1'))
       await mintTo(user2, amountToMint)
       await verifyBalance(user2, amountToMint)
       await verifyTotalSupply()
+      await verifyTokenHolders()
     })
 
     it("Mint to user2 #2", async() => {
