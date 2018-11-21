@@ -1,7 +1,7 @@
 {
   "scripts": {
     "compile": "truffle compile",
-    "migrate": "truffle migrate",
+    "migrate": "truffle migrate --reset",
     "test": "truffle test",
     "version": "truffle version"
   },
