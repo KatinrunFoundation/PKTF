@@ -77,7 +77,7 @@ contract PrivateToken is PartialERC20, Ownable {
         _transfer(msg.sender, to, value);
 
         // Record new holder
-        _recordNewTokenHolder(msg.sender);
+        _recordNewTokenHolder(to);
 
         return true;
     }
@@ -97,7 +97,7 @@ contract PrivateToken is PartialERC20, Ownable {
         // _transfer(from, to, value);
         
         // Record new holder
-        _recordNewTokenHolder(msg.sender);
+        _recordNewTokenHolder(to);
         
         return true;
     }
