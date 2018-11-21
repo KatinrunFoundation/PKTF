@@ -22,36 +22,48 @@ contract("PrivateKatinrunFoudation", accounts => {
     )
   }
 
-  async function balanceOf(user) {
-    return await instance.balanceOf.call(owner)
+  async function verifyBalance(user, expectedBalance) {
+    let balance = await instance.balanceOf.call(user)
+    assert.equal(balance.toString(10), expectedBalance, `Balance should be ${expectedBalance}`)
   }
 
   describe('Mint to owner', async() => {
     it("Mint to owner #1", async() => {
       const amountToMint = web3.toWei(1000000, "ether") 
       await mintTo(owner, amountToMint)
-  
-      // Verify amount remainig
-      let balance = await balanceOf(owner)
-      assert.equal(balance.toString(10), amountToMint, "Balance should be 1000000")
+      await verifyBalance(owner, amountToMint)
     })
 
     it("Mint to owner #2", async() => {
       const amountToMint = web3.toWei(10000000000, "ether")
       await mintTo(owner, amountToMint)
-  
-      // Verify amount remainig
-      let balance = await balanceOf(owner)
-      assert.equal(balance.toString(10), web3.toWei(10001000000, "ether"), "Balance should be 10001000000")
+      await verifyBalance(owner, web3.toWei(10001000000, "ether"))
     })
 
     it("Mint to owner #3", async() => {
       const amountToMint = web3.toWei(4829329328329, "ether")
       await mintTo(owner, amountToMint)
-  
-      // Verify amount remainig
-      let balance = await balanceOf(owner)
-      assert.equal(balance.toString(10), web3.toWei(4839330328329, "ether"), "Balance should be 10001000000")
+      await verifyBalance(owner, web3.toWei(4839330328329, "ether"))
+    })
+  })
+
+  describe('Mint to user1', async() => {
+    it("Mint to user1 #1", async() => {
+      const amountToMint = web3.toWei(1000000, "ether") 
+      await mintTo(user1, amountToMint)
+      await verifyBalance(user1, amountToMint)
+    })
+
+    it("Mint to user1 #2", async() => {
+      const amountToMint = web3.toWei(10000000000, "ether")
+      await mintTo(user1, amountToMint)
+      await verifyBalance(user1, web3.toWei(10001000000, "ether"))
+    })
+
+    it("Mint to user1 #3", async() => {
+      const amountToMint = web3.toWei(4829329328329, "ether")
+      await mintTo(user1, amountToMint)
+      await verifyBalance(user1, web3.toWei(4839330328329, "ether"))
     })
   })
 })
