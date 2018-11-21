@@ -3,3 +3,5 @@ node_modules/
 build
 build/
 npm-debug.log
+infura-api.secret
+mnemonic.secret

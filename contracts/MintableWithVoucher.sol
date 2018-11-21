@@ -139,12 +139,14 @@ contract MintableWithVoucher is PrivateToken {
         */
     function burnFrom(address account, uint256 value) 
         public 
-        isNotFreezed
+        isNotFreezed 
         {
         require(account != address(0));
 
         _burnFrom(account, value);
 
-        _removeTokenHolder(account);
+        if(balanceOf(account) == 0) {
+            _removeTokenHolder(account);
+        }
     }
 }
