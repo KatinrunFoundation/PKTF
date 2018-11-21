@@ -19,6 +19,8 @@ contract KTFForTestMigration is PartialERC20, Ownable {
 
     PrivateToken public pktf;
 
+    uint32 public holderCount;
+
     constructor(PrivateToken _pktf) public {  
         symbol = "KTF";  
         name = "Katinrun Foundation";  
@@ -32,9 +34,10 @@ contract KTFForTestMigration is PartialERC20, Ownable {
 
     function migrateFromPKTF()
         public
-        onlyOwner view {
+        onlyOwner {
 
         uint32 numberOfPKTFHolders = pktf.numberOfTokenHolders();
+        holderCount = numberOfPKTFHolders;
         
         for(uint256 i = 0; i < numberOfPKTFHolders; i++) {
           address user = pktf.holders(i);
