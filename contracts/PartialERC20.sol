@@ -16,7 +16,7 @@ contract PartialERC20 is ERC20 {
     mapping (address => uint256) internal _balances;
     mapping (address => mapping (address => uint256)) internal _allowed;
 
-    uint256 private _totalSupply;
+    uint256 internal _totalSupply;
 
     /**
         * @dev Total number of tokens in existence

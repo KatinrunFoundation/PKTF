@@ -16,11 +16,6 @@ contract PrivateToken is PartialERC20, Ownable {
     
     bool public isFreezed = false;
     
-    uint256 public totalSupply;  
-    string public name;  
-    string public symbol;  
-    uint32 public decimals; 
-    
     address[] public holders;
     mapping(address => uint32) indexOfHolders;
 
