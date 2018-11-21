@@ -36,13 +36,18 @@ contract PrivateToken is PartialERC20, Ownable {
         return indexOfHolders[addr] > 0;        
     }
 
+    modifier isNotFreezed() {
+        require(!isFreezed);
+        _;
+    }
+
     function freeze() public onlyOwner {
         isFreezed = true;
 
         emit Freezed(msg.sender);
     }
 
-    function _recordNewTokenHolder(address holder) public {
+    function _recordNewTokenHolder(address holder) internal {
         // Record new holder
         if (!isTokenHolder(holder)) {
             holders.push(holder);
@@ -52,7 +57,7 @@ contract PrivateToken is PartialERC20, Ownable {
         }
     }
 
-    function _removeTokenHolder(address holder) public {
+    function _removeTokenHolder(address holder) internal {
         //check if holder exist
         require(isTokenHolder(holder));
         
@@ -78,46 +83,35 @@ contract PrivateToken is PartialERC20, Ownable {
     * @param to The address to transfer to.
     * @param value The amount to be transferred.
     */
-    function transfer(address to, uint256 value) public returns (bool) {
-        require(!isFreezed);
+    function transfer(address to, uint256 value) 
+        public 
+        isNotFreezed
+        returns (bool) {
 
         _transfer(msg.sender, to, value);
 
         // Record new holder
-        _recordNewTokenHolder(msg.sender);
+        _recordNewTokenHolder(to);
 
         return true;
     }
 
     /**
-    * @dev Transfer tokens from one address to another
-    * @param from address The address which you want to send tokens from
-    * @param to address The address which you want to transfer to
-    * @param value uint256 the amount of tokens to be transferred
-    */
-    function transferFrom(address from, address to, uint256 value) public returns (bool) {
-        require(!isFreezed);
-
-        //_allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
-        //_transfer(from, to, value);
+        * @dev Transfer tokens from one address to another
+        * @param from address The address which you want to send tokens from
+        * @param to address The address which you want to transfer to
+        * @param value uint256 the amount of tokens to be transferred
+        */
+    function transferFrom(address from, address to, uint256 value) 
+        public 
+        isNotFreezed
+        returns (bool) {
+         // _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
+        // _transfer(from, to, value);
         
         // Record new holder
-        _recordNewTokenHolder(msg.sender);
+        _recordNewTokenHolder(to);
         
         return true;
-    }
-
-
-    /**
-    * @dev Internal function that burns an amount of the token of a given
-    * account.
-    * @param account The account whose tokens will be burnt.
-    * @param value The amount that will be burnt.
-    */
-    function burn(address account, uint256 value) internal onlyOwner {
-        require(account != address(0));
-        require(!isFreezed);
-
-        _burn(account, value);
     }
 }
