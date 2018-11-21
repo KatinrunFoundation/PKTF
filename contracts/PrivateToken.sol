@@ -11,6 +11,7 @@ import "./PartialERC20.sol";
 *       Step2: Loop mint for all holders on a production token.
 */  
 
+
 contract PrivateToken is PartialERC20, Ownable {
     
     bool public isFreezed = false;
@@ -21,14 +22,14 @@ contract PrivateToken is PartialERC20, Ownable {
     uint32 public decimals; 
     
     address[] public holders;
-    mapping(address => uint64) indexOfHolders;
+    mapping(address => uint32) indexOfHolders;
 
     event Freezed(address);
     event RecordNewTokenHolder(address);
     event RemoveTokenHolder(address);
     
-    function numberOfTokenHolders() public view returns(uint64) {
-        return uint64(holders.length);
+    function numberOfTokenHolders() public view returns(uint32) {
+        return uint32(holders.length);
     }
 
     function isTokenHolder(address addr) public view returns(bool) {
@@ -45,7 +46,7 @@ contract PrivateToken is PartialERC20, Ownable {
         // Record new holder
         if (!isTokenHolder(holder)) {
             holders.push(holder);
-            indexOfHolders[holder] = uint64(holders.length);
+            indexOfHolders[holder] = uint32(holders.length);
             
             emit RecordNewTokenHolder(holder);
         }
@@ -56,9 +57,9 @@ contract PrivateToken is PartialERC20, Ownable {
         require(isTokenHolder(holder));
         
         // delete holder in holders
-        uint64 index = indexOfHolders[holder] - 1;
+        uint32 index = indexOfHolders[holder] - 1;
 
-        if (holders.length > 1 && index != holders.length - 1) {
+        if (holders.length > 1 && index != uint32(holders.length - 1)) {
             //swap two elements of the array
             address lastHolder = holders[holders.length - 1];
             holders[holders.length - 1] = holders[index];
