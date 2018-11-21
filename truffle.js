@@ -18,8 +18,8 @@
 // };
 const HDWallet = require('truffle-hdwallet-provider');
 
-const mnemonic = ''
-const infuraProjectId = ''
+const mnemonic = require('./mnemonic.secret');
+const infuraApi = require('./infura-api.secret');
 
 module.exports = {  
   networks: {  
@@ -29,7 +29,7 @@ module.exports = {
       network_id: "*" // Match any network id  
     },
     kovan: {
-      provider: () => new HDWallet(mnemonic, `https://kovan.infura.io/v3/${infuraProjectId}`),
+      provider: () => new HDWallet(mnemonic, `https://kovan.infura.io/v3/${infuraApi}`),
       network_id: 42,
       websockets: true,
       skipDryRun: true,
