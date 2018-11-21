@@ -44,6 +44,28 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
     assert.equal(numberOfTokenHolders.toString(10), expectedTokenHolders.toString(10), `Holders count should be ${expectedTokenHolders.toString(10)}`)
   }
 
+  async function burnOwner(value, sender) {
+    amountToBurn = web3.utils.toWei(value, "ether") 
+    try {
+      await instance.burn(
+        amountToBurn,
+        {from: sender}
+      )
+      const numberOfTokenHolders = await instance.numberOfTokenHolders()
+      const totalSupply = await instance.totalSupply()
+      const expectedTotalSupplyStrig = web3.utils.toWei(expectedTotalSupply.minus(BigNumber(value)).toString(10), "ether")
+
+      assert.equal(numberOfTokenHolders.toString(10), expectedTokenHolders.minus(BigNumber('1')).toString(10), `Holders count should be ${expectedTokenHolders.toString(10)}`)
+      assert.equal(totalSupply.toString(10), expectedTotalSupplyStrig, `Total supply should be ${expectedTotalSupplyStrig}`)
+    } catch (err) {
+      const numberOfTokenHolders = await instance.numberOfTokenHolders()
+      const totalSupply = await instance.totalSupply()
+      const expectedTotalSupplyStrig = web3.utils.toWei(expectedTotalSupply.toString(10), "ether")
+      assert.equal(numberOfTokenHolders.toString(10), expectedTokenHolders.toString(10), `Holders count should be ${expectedTokenHolders.toString(10)}`)
+      assert.equal(totalSupply.toString(10), expectedTotalSupplyStrig, `Total supply should be ${expectedTotalSupplyStrig}`)
+    }
+  }
+
   describe('Mint to owner', async() => {
     it("Mint to owner #1", async() => {
       const amountToMint = web3.utils.toWei('1000000', "ether")
@@ -117,6 +139,18 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
       await mintTo(user2, amountToMint)
       await verifyBalance(user2, web3.utils.toWei('439329321329038', "ether"))
       await verifyTotalSupply()
+    })
+  })
+
+  describe('Burn Owner', async() => {
+    it("Sender is Owner #1", async() => {
+      const amountToBurn = web3.utils.toWei('1000000', "ether")
+      await burnOwner(amountToBurn, owner)
+    })
+
+    it("Sender is not Owner #2", async() => {
+      const amountToBurn = '1000000'
+      await burnOwner(amountToBurn, user1)
     })
   })
 })
