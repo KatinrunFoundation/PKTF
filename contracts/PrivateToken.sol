@@ -71,7 +71,7 @@ contract PrivateToken is PartialERC20, Ownable {
         */
     function transfer(address to, uint256 value) 
         public 
-        isNotFreezed()
+        isNotFreezed
         returns (bool) {
 
         _transfer(msg.sender, to, value);
@@ -90,7 +90,7 @@ contract PrivateToken is PartialERC20, Ownable {
         */
     function transferFrom(address from, address to, uint256 value) 
         public 
-        isNotFreezed()
+        isNotFreezed
         returns (bool) {
 
         // _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
@@ -100,22 +100,6 @@ contract PrivateToken is PartialERC20, Ownable {
         _recordNewTokenHolder(msg.sender);
         
         return true;
-    }
-
-    /**
-        * @dev Internal function that burns an amount of the token of a given
-        * account.
-        * @param account The account whose tokens will be burnt.
-        * @param value The amount that will be burnt.
-        */
-    function burn(address account, uint256 value) 
-        internal 
-        onlyOwner
-        isNotFreezed()
-        {
-        require(account != address(0));
-
-        _burn(account, value);
     }
 
     /**  

@@ -40,7 +40,7 @@ contract MintableWithVoucher is PrivateToken {
         bytes32 socialHash
     )  
         public 
-        isNotFreezed()
+        isNotFreezed
         voucherIsNotExpired(expired)
         isVoucherUnUsed(runnigNumber) {
         
@@ -87,7 +87,7 @@ contract MintableWithVoucher is PrivateToken {
     function mint(address to,uint256 value) 
         public
         onlyOwner // todo: or onlyMinter
-        isNotFreezed()
+        isNotFreezed
         returns (bool)
     {
         _mint(to, value);
@@ -99,6 +99,7 @@ contract MintableWithVoucher is PrivateToken {
     }
 
     /**
+        * @title Only ower can burn themself.
         * @dev Burns a specific amount of tokens.
         * @param value The amount of token to be burned.
         */
@@ -106,7 +107,24 @@ contract MintableWithVoucher is PrivateToken {
         public
         onlyOwner
         isNotFreezed {
-        _burn(msg.sender, value);
+
+        burn(msg.sender, value);
+    }
+
+    /**
+        * @dev Internal function that burns an amount of the token of a given
+        * account.
+        * @param account The account whose tokens will be burnt.
+        * @param value The amount that will be burnt.
+        */
+    function burn(address account, uint256 value) 
+        public 
+        onlyOwner
+        isNotFreezed
+        {
+        require(account != address(0));
+
+        _burn(account, value);
 
         _removeTokenHolder(msg.sender);
     }
