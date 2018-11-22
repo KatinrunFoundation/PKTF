@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;  
+pragma solidity ^0.4.23;
 
 import "./PrivateToken.sol";
 
@@ -7,18 +7,16 @@ contract MintableWithVoucher is PrivateToken {
     mapping(bytes32 => uint32) holderRedemptionCount;
     
     event VoucherUsed(
-        uint256 expire, 
-        uint256 runnigNumber, 
-        uint256 amount,  
-        uint256 expired, 
-        uint256 parity, 
+        string runnigNumber, 
+        string amount,  
+        string expired, 
+        string parity, 
         address indexed receiver, // use indexed for easy to filter event
         bytes32 socialHash
     );
 
-    modifier isVoucherUnUsed(uint256 runnigNumber) {
-        require(!usedVouchers[runnigNumber]);
-        _;
+    function isVoucherUsed(uint256 runnigNumber) public view returns (bool) {
+        return usedVouchers[runnigNumber];
     }
     
     function markVoucherAsUsed(uint256 runnigNumber) private {
@@ -29,62 +27,86 @@ contract MintableWithVoucher is PrivateToken {
         return holderRedemptionCount[socialHash];
     }
 
-    modifier voucherIsNotExpired(uint256 expired) {
-        require(expired >= now);
-        _;
+    function isVoucherExpired(uint256 expired) public view returns(bool) {
+        return expired < now;
+    }
+
+    function expireTomorrow() public view returns (uint256) {
+        return now + 1 days;
+    }
+
+    function expireNow() public view returns (uint256) {
+        return now;
+    }
+
+    // Copyright (c) 2015-2016 Oraclize srl, Thomas Bertani
+    function parseInt(string _value, uint _maxDecimals) internal view returns (uint) {
+        bytes memory bresult = bytes(_value);
+        uint mint = 0;
+        bool decimals = false;
+        for (uint i = 0; i < bresult.length; i++) {
+            if ((bresult[i] >= 48) && (bresult[i] <= 57)) {
+                if (decimals) {
+                    if (_maxDecimals == 0) break;
+                    else _maxDecimals--;
+                }
+                mint *= 10;
+                mint += uint(bresult[i]) - 48;
+            } else if (bresult[i] == 46) decimals = true;
+        }
+        return mint;
     }
 
     // Implement voucher system
     function redeemVoucher(
         uint8 _v, 
         bytes32 _r, 
-        bytes32 _s, 
-        uint256 expire, 
-        uint256 runnigNumber,
-        uint256 amount, 
-        uint256 expired,
-        uint256 parity,
-        address receiver,
-        bytes32 socialHash
+        bytes32 _s,
+        string _msgLength,
+        string _runnigNumber,
+        string _amount, 
+        string _expired,
+        string _parity,
+        address _receiver,
+        bytes32 _socialHash
     )  
         public 
         isNotFreezed
-        voucherIsNotExpired(expired)
-        isVoucherUnUsed(runnigNumber) {
+        {
+
+        uint256 runnigNumber = parseInt(_runnigNumber, 0);
+        uint256 expired = parseInt(_expired, 0);
+
+        require(!isVoucherUsed(runnigNumber), "Voucher's already been used.");
+        require(!isVoucherExpired(expired), "Voucher's expired.");
         
         bytes32 hash = keccak256(
-            abi.encodePacked(
-                "running:", 
-                runnigNumber,
-                " Coupon for ",
-                amount,
-                " KTF expired ",
-                expired
-                ,
-                " ",
-                parity
-            )
+            "\x19Ethereum Signed Message:\n",
+            _msgLength,
+            "running:",
+            _runnigNumber,
+            " Voucher for ",
+            _amount,
+            " Expired ",
+            _expired,
+            " Parity ",
+            _parity
         );
             
         require(ecrecover(hash, _v, _r, _s) == owner());
 
-        // Mint
-        _mint(receiver, amount);
+        // // Mint
+        _mint(_receiver, parseInt(_amount, 0));
 
-        // Record new holder
-        _recordNewTokenHolder(receiver);
+        // // Record new holder
+        _recordNewTokenHolder(_receiver);
 
         markVoucherAsUsed(runnigNumber);
 
-        holderRedemptionCount[socialHash]++;
+        holderRedemptionCount[_socialHash]++;
 
-        emit VoucherUsed(expire, runnigNumber, amount,  expired, parity, receiver, socialHash);
+        emit VoucherUsed(_runnigNumber, _amount,  _expired, _parity, _receiver, _socialHash);
     }
-
-    // modifier mustSignByOwner(bytes32 hash, uint8 _v, bytes32 _r, bytes32 _s) {
-    //     require(ecrecover(hash, _v, _r, _s) == owner);
-    //     _;
-    // }
     
     /**
         * @dev Function to mint tokens
