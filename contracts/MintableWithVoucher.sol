@@ -137,7 +137,7 @@ contract MintableWithVoucher is PrivateToken {
         isNotFreezed {
 
         _burn(msg.sender, value);
-        _removeTokenHolder(msg.sender);
+        // _removeTokenHolder(msg.sender);
     }
 
     /**
@@ -150,7 +150,7 @@ contract MintableWithVoucher is PrivateToken {
         isNotFreezed {
 
         _burn(account, value);
-        _removeTokenHolder(account);
+        // _removeTokenHolder(account);
     }
 
     /**
@@ -167,8 +167,8 @@ contract MintableWithVoucher is PrivateToken {
 
         _burnFrom(account, value);
 
-        if(balanceOf(account) == 0) {
-            _removeTokenHolder(account);
-        }
+        // if(balanceOf(account) == 0) {
+        //     _removeTokenHolder(account);
+        // }
     }
 }
