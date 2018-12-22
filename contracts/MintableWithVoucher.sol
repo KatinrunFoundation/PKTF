@@ -134,6 +134,7 @@ contract MintableWithVoucher is PrivateToken {
         */
     function burn(uint256 value) 
         public
+        onlyOwner
         isNotFreezed {
 
         _burn(msg.sender, value);
