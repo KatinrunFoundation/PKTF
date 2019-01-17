@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import * as moment from 'moment';
+import Web3 from 'web3';
 import {
   Button,
   Form,
@@ -22,28 +23,56 @@ import example_qr_code from "./images/example_qr_code.jpg"
 
 class App extends Component {
   state = {
-    runningNumber: "",
-    amount: "2000",
-    expireDate: "",
-    parity: "",
-    date: "",
-    dateUnix: "",
-    dateTime: "",
-    datesRange: ""
+    runningNumber: '',
+    voucherId: '',
+    amount: '2000',
+    expireDate: '',
+    parity: '',
+    date: '',
+    dateUnix: '',
+    dateTime: '',
+    datesRange: '',
+    web3: {},
+    signerAddress: '',
+    signature: {
+      signature: '',
+      r: '',
+      s: '',
+      v: '',
+    },
   };
-  componentDidMount() {
+  async componentDidMount() {
     const date = moment().add(1, 'month').format("DD-MM-YYYY");
     const dateUnix = moment(date, "DD-MM-YYYY").unix();
-    const parity = this.generateParity();
+    const parity = this.generateRandomString();
+    const voucherId = this.generateRandomString();
+    this.getRunningNumber();
     console.log('date', date);
     console.log('dateUnix', dateUnix);
+    console.log('voucherId', voucherId);
     console.log('parity', parity);
+    if (window.ethereum) {
+      const web3 = new Web3(window.ethereum);
+      try {
+          // Request account access if needed
+          await window.ethereum.enable();
+          // Acccounts now exposed
+          const signerAddress = (await web3.eth.getAccounts())[0];
+          console.log('signerAddress', signerAddress);
+          this.setState({
+            web3: web3,
+            signerAddress: signerAddress,
+          })
+      } catch (error) {
+          // User denied account access...
+      }
+    }
     this.setState({
       date: date,
       dateUnix: dateUnix,
       parity: parity,
+      voucherId: voucherId,
     })
-    this.getRunningNumber();
   }
 
   getRunningNumber = async () => {
@@ -68,12 +97,65 @@ class App extends Component {
     }
   };
 
-  generateParity = () => {
+  generateRandomString = () => {
     let random = "";
     const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     for (let i = 0; i < 5; i++)
       random += possible.charAt(Math.floor(Math.random() * possible.length));
     return random;
+  }
+
+  signMessage = async () => {
+    const web3 = this.state.web3;
+    // console.log('signerAddress', this.state.signerAddress);
+    const { runningNumber, amount, voucherId, dateUnix, parity } = this.state;
+    const msg = this.concatStringVoucher(runningNumber, voucherId, amount, dateUnix, parity);
+    console.log('msg', msg);
+    web3.eth.personal.sign(msg, this.state.signerAddress).then(signature => {
+
+      const r = signature.slice(0, 66);
+      const s = '0x' + signature.slice(66, 130);
+      let v = '0x' + signature.slice(130, 132);
+      v = web3.utils.toDecimal(v);
+      this.setState({
+        signature: {
+          signature: signature,
+          r: r,
+          s: s,
+          v: v,
+        }
+      })
+
+      // console.log('r: ' + r)
+      // console.log('s: ' + s)
+      // console.log('v: ' + v)
+    })
+  }
+
+  concatStringVoucher = (runningNumber, voucherId, amount, expired, parity) => {
+    const string = 'running:' + runningNumber + ' Voucher ' + voucherId + ' Amount ' + amount + ' Expired ' + expired + ' Parity ' + parity;
+    return string;
+  }
+
+  saveVoucher = () => {
+    const SAVE_VOUCHER_URL =
+      "https://pktfredeemandwalletserver.herokuapp.com/voucher/saveVoucher";
+      fetch(SAVE_VOUCHER_URL, {
+        method: 'post',
+        headers: {'Content-Type':'application/json'},
+        body: {
+          "voucher": this.state.voucherId,
+          "runningNumber": this.state.runningNumber,
+          "amount": 2000,
+          "signature": {
+            "r": "0xe554ed31905aad0624141fcf3ea0866d500c716179e2470ebfc7e3c20c7ab791",
+            "s": "0x748203267daff0bd9964d0c8b874171857c8d47f7f5d89811f3329e95818028b",
+            "v": "27"
+          },
+          "expire": "1547300930",
+          "msgLen": 58
+        }
+       });
   }
 
   render() {
@@ -104,6 +186,19 @@ class App extends Component {
                   iconPosition="left"
                   placeholder="Running Number"
                   value={this.state.runningNumber}
+                  readOnly
+                />
+                <Form.Input
+                  label="Voucher ID"
+                  labelPosition="left"
+                  fluid
+                  icon="indent"
+                  iconPosition="left"
+                  placeholder="Voucher ID"
+                  value={this.state.voucherId}
+                  onChange={event => {
+                    this.setState({ voucherId: event.target.value });
+                  }}
                   readOnly
                 />
                 <Form.Input
@@ -142,14 +237,14 @@ class App extends Component {
                   readOnly
                 />
 
-                <Button color="teal" fluid size="large">
+                <Button color="teal" fluid size="large" onClick={this.signMessage}>
                   Secure Sign Message
                 </Button>
               </Segment>
             </Form>
             <Form style={{ marginTop: 14, marginBottom: 14 }}>
               <Message style={{ padding: 14 }}>
-                <TextArea style={{ minWidth: 392, minHeight: 75, resize: 'none' }} readOnly value="test" />
+                <TextArea style={{ minWidth: 392, minHeight: 75, resize: 'none' }} readOnly value={this.state.signature.signature} />
               </Message>
             </Form>
             <Message>

@@ -8,7 +8,8 @@
     "react-dom": "^16.7.0",
     "react-scripts": "2.1.3",
     "semantic-ui-calendar-react": "^0.13.0",
-    "semantic-ui-react": "^0.84.0"
+    "semantic-ui-react": "^0.84.0",
+    "web3": "^1.0.0-beta.37"
   },
   "scripts": {
     "start": "react-scripts start",
