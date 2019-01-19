@@ -27,57 +27,84 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
     console.log(`expireNow ${expireNow}`)
   })
 
-  // it("Voucher #1", async () => {
-  //   const runnigNumber = 1
-  //   const amount = 2000
-  //   // const expired = await instance.expireTomorrow() 
-  //   const expired = 1542957703 // Valid
-  //   // const expired = 1542871529 // Voucher's expired
-  //   const parity = '1xSafd'
-  //   const receiver = user1
-  //   const socialHash = user1
 
-  //   const msgToSign = 'running:' + runnigNumber.toString() + ' Voucher for ' + amount.toString() + ' Expired ' + expired.toString() + ' Parity ' + parity
-  //   console.log(`msg length: ${msgToSign.length}`)
-  //   const msgLength = msgToSign.length
 
-  //   // Valid
-  //   const signature = {
-  //     v: 28,
-  //     r: '0x55ef1b7e27428679a6e4099ae40b3065b4fdb2fd24245a73adf10b72ae0994a3',
-  //     s: '0x6de6187c3fee4eb77447459883c7070e3e10fbaba34d12ea991173e753242916'
-  //   }
 
-  //   // Voucher's expired
-  //   // const signature = {
-  //   //   v: 27,
-  //   //   r: '0x14436306a3a37975e1629e73081a50acad137eb6341b5c7845ceb72036b5fd63',
-  //   //   s: '0x73e142c17fbdd0f7b4956cdd63b7aba488b2ee35e1628877e9148bdc782a5235'
-  //   // }
+  it("Voucher #1", async () => {
+    const signed1 = {
+      amount: 2000,
+      expire: 1550509200,
+      msgLen: 28,
+      parity: 302615589956,
+      signature: {
+        r: "0x5df5081e29947497936c7e0277b499828e4d3a019b2b699d80935db028fb581f",
+        s: "0x5bb74b68dddeee0c03c4081c88ca0a42b5a5a7e9f054892a321376b21f98dc00",
+        v: 28
+      },
+      voucherId: "FuKtD",
+      intVoucherId: 337025385313
+    }
 
-  //   let balanceBefore = await instance.balanceOf(receiver)
-  //   console.log(`balanceBefore ${balanceBefore}`)
+    // const amount = 2000
+    // const expired = await instance.expireTomorrow() 
+    // const expired = 1542957703 // Valid
+    // const expired = 1542871529 // Voucher's expired
+    // const parity = '1xSafd'
+    const receiver = user1
+    const socialHash = user1
 
-  //   const hashMsg = await instance.redeemVoucher(
-  //     signature.v, 
-  //     web3.eth.abi.encodeParameter('bytes32', signature.r),
-  //     web3.eth.abi.encodeParameter('bytes32', signature.s),
-  //     msgLength.toString(),
-  //     runnigNumber.toString(),
-  //     amount.toString(), 
-  //     expired.toString(),
-  //     parity,
-  //     receiver,
-  //     socialHash,
-  //     {from: owner}
-  //   )  
+    const msgToSign = '|5837454255|221097052228|2000|1550509200';
+    console.log(`msg length: ${msgToSign.length}`)
+    const msgLength = msgToSign.length
 
-  //   let balanceAfter = await instance.balanceOf(receiver)
-  //   console.log(`balanceAfter ${balanceAfter}`)
+    // Valid
+    const signature = {
+      r: "0x1759ff69dc7594f12549bcf949c920d87bdda5d69d6a148861cca53fa97498f9",
+      s: "0x4202bf119ddbbf1937d408998600bf3e185a0ec4b7063cfed43477355a2d729a",
+      v: 27
+    }
 
-  //   assert.equal(balanceAfter.toString(10), parseInt(balanceBefore) + amount, "Redeption failed, balace's not updated")
 
-  //   expectedTokenHolders += 1
-  //   await verifyTokenHolders()
-  // })
+    let balanceBefore = await instance.balanceOf(receiver)
+    console.log(`balanceBefore ${balanceBefore}`)
+
+    console.log(signed1.signature.v, 
+      web3.eth.abi.encodeParameter('bytes32', signed1.signature.r),
+      web3.eth.abi.encodeParameter('bytes32', signed1.signature.s),
+      signed1.intVoucherId,
+      signed1.parity,
+      signed1.amount, 
+      signed1.expire,
+      signed1.msgLen,
+      receiver,
+      socialHash)
+
+    const hashMsg = await instance.redeemVoucher(
+      signed1.signature.v, 
+      web3.eth.abi.encodeParameter('bytes32', signed1.signature.r),
+      web3.eth.abi.encodeParameter('bytes32', signed1.signature.s),
+      signed1.intVoucherId,
+      signed1.parity,
+      signed1.amount, 
+      signed1.expire,
+      signed1.msgLen,
+      receiver,
+      socialHash,
+
+
+      {from: owner}
+    )
+
+    console.log('hashMsg:', hashMsg);
+
+    assert.ok(hashMsg);
+
+    // let balanceAfter = await instance.balanceOf(receiver)
+    // console.log(`balanceAfter ${balanceAfter}`)
+
+    // assert.equal(balanceAfter.toString(10), parseInt(balanceBefore) + amount, "Redeption failed, balace's not updated")
+
+    // expectedTokenHolders += 1
+    // await verifyTokenHolders()
+  })
 })

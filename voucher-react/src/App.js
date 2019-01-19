@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { post } from 'axios';
 import * as moment from 'moment';
 import Web3 from 'web3';
 import {
@@ -23,9 +24,10 @@ import example_qr_code from "./images/example_qr_code.jpg"
 
 class App extends Component {
   state = {
-    runningNumber: '',
     voucherId: '',
-    amount: '2000',
+    intVoucherId: 0,
+    intParity: 0,
+    amount: 2000,
     expireDate: '',
     parity: '',
     date: '',
@@ -54,17 +56,17 @@ class App extends Component {
     if (window.ethereum) {
       const web3 = new Web3(window.ethereum);
       try {
-          // Request account access if needed
-          await window.ethereum.enable();
-          // Acccounts now exposed
-          const signerAddress = (await web3.eth.getAccounts())[0];
-          // console.log('signerAddress', signerAddress);
-          this.setState({
-            web3: web3,
-            signerAddress: signerAddress,
-          })
+        // Request account access if needed
+        await window.ethereum.enable();
+        // Acccounts now exposed
+        const signerAddress = (await web3.eth.getAccounts())[0];
+        // console.log('signerAddress', signerAddress);
+        this.setState({
+          web3: web3,
+          signerAddress: signerAddress,
+        })
       } catch (error) {
-          // User denied account access...
+        // User denied account access...
       }
     }
     this.setState({
@@ -109,12 +111,34 @@ class App extends Component {
   signMessage = async () => {
     const web3 = this.state.web3;
     console.log('signerAddress', this.state.signerAddress);
-    const { runningNumber, amount, voucherId, dateUnix, parity } = this.state;
-    const msg = this.concatStringVoucher(runningNumber, voucherId, amount, dateUnix, parity);
+    const { voucherId, parity, amount, dateUnix } = this.state;
+    const msg = this.concatStringVoucher(voucherId, parity, amount, dateUnix);
+    const intVoucherId = web3.utils.toDecimal(this.String2Hex(voucherId));
+    const intParity = web3.utils.toDecimal(this.String2Hex(parity));
+    const intMsg = this.concatStringVoucher(
+      intVoucherId,
+      intParity,
+      amount,
+      dateUnix
+    );
+    // const hexVoucherId = this.String2Hex(voucherId2);
+    // const hexVoucherId = this.String2Hex(voucherId2);
     const msgLength = msg.length
-    console.log('msg', msg);
-    console.log('msgLength', msgLength);
-    web3.eth.personal.sign(msg, this.state.signerAddress).then(signature => {
+    const intMsgLength = intMsg.length
+    console.log('msg:', msg);
+    console.log('intMsg:', intMsg);
+
+    console.log('intParity:', intParity);
+    // const uintParity = web3.utils.toDecimal(parity);
+    // const uintMsg = this.concatStringVoucher(uintVoucherId, uintParity, amount, dateUnix);
+
+
+    console.log('msgLength:', msgLength);
+    console.log('intMsgLength:', intMsgLength);
+
+
+
+    web3.eth.personal.sign(intMsg, this.state.signerAddress).then(signature => {
 
       const r = signature.slice(0, 66);
       const s = '0x' + signature.slice(66, 130);
@@ -128,6 +152,9 @@ class App extends Component {
           v: v,
         },
         msgLength: msgLength,
+        intMsgLength: intMsgLength,
+        intVoucherId: intVoucherId,
+        intParity: intParity,
       })
 
       // console.log('r: ' + r)
@@ -136,30 +163,42 @@ class App extends Component {
     })
   }
 
-  concatStringVoucher = (runningNumber, voucherId, amount, expired, parity) => {
-    const string = 'running:' + runningNumber + ' Voucher ' + voucherId + ' Amount ' + amount + ' Expired ' + expired + ' Parity ' + parity;
+  String2Hex = (tmp) => {
+    var str = '';
+    for (var i = 0; i < tmp.length; i++) {
+      str += tmp[i].charCodeAt(0).toString(16);
+    }
+    return str;
+  }
+
+  concatStringVoucher = (voucherId, parity, amount, expired) => {
+    const string = `|${voucherId}|${parity}|${amount}|${expired}`;
     return string;
   }
 
-  saveVoucher = () => {
+  saveVoucher = async () => {
+    const body = {
+      "voucherId": this.state.voucherId,
+      "intVoucherId": this.state.intVoucherId,
+      "amount": this.state.amount,
+      "signature": {
+        "r": this.state.signature.r,
+        "s": this.state.signature.s,
+        "v": this.state.signature.v,
+      },
+      "expire": this.state.dateUnix,
+      "msgLen": this.state.intMsgLength,
+    }
+    console.log('body', body);
     const SAVE_VOUCHER_URL =
       "https://pktfredeemandwalletserver.herokuapp.com/voucher/saveVoucher";
-      fetch(SAVE_VOUCHER_URL, {
-        method: 'post',
-        headers: {'Content-Type':'application/json'},
-        body: {
-          "voucher": this.state.voucherId,
-          "runningNumber": this.state.runningNumber,
-          "amount": this.state.amount,
-          "signature": {
-            "r": this.state.signature.r,
-            "s": this.state.signature.s,
-            "v": this.state.signature.v,
-          },
-          "expire": this.state.dateUnix,
-          "msgLen": 58
-        }
-       });
+    const result = (await post(SAVE_VOUCHER_URL, body)).data;
+    console.log('result', result);
+    // fetch(SAVE_VOUCHER_URL, {
+    //   method: 'post',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: body,
+    // });
   }
 
   render() {
@@ -199,12 +238,13 @@ class App extends Component {
                   label="Amount"
                   labelPosition="left"
                   fluid
+                  type="number"
                   icon="dollar sign"
                   iconPosition="left"
                   placeholder="Amount"
                   value={this.state.amount}
                   onChange={event => {
-                    this.setState({ amount: event.target.value });
+                    this.setState({ amount: parseInt(event.target.value) });
                   }}
                 />
                 <DateInput
@@ -242,15 +282,15 @@ class App extends Component {
               </Message>
             </Form>
             <Message>
-              <Button color='teal' fluid size='large'>Confirm and Send</Button>
+              <Button color='teal' fluid size='large' onClick={this.saveVoucher}>Confirm and Send</Button>
             </Message>
           </Grid.Column>
           <Grid.Column>
             <Segment>
-            <Image src={example_qr_code} size='medium' wrapped />
-            <Message>
-              <Button color='teal' fluid size='large'>Print</Button>
-            </Message>
+              <Image src={example_qr_code} size='medium' wrapped />
+              <Message>
+                <Button color='teal' fluid size='large'>Print</Button>
+              </Message>
             </Segment>
           </Grid.Column>
         </Grid>
