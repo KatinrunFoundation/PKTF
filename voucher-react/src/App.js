@@ -45,11 +45,11 @@ class App extends Component {
     const date = moment().add(1, 'month').format("DD-MM-YYYY");
     const dateUnix = moment(date, "DD-MM-YYYY").unix();
     const parity = this.generateRandomString();
-    const voucherId = this.generateRandomString();
+    // const voucherId = this.generateRandomString();
     this.getRunningNumber();
     console.log('date', date);
     console.log('dateUnix', dateUnix);
-    console.log('voucherId', voucherId);
+    // console.log('voucherId', voucherId);
     console.log('parity', parity);
     if (window.ethereum) {
       const web3 = new Web3(window.ethereum);
@@ -58,7 +58,7 @@ class App extends Component {
           await window.ethereum.enable();
           // Acccounts now exposed
           const signerAddress = (await web3.eth.getAccounts())[0];
-          console.log('signerAddress', signerAddress);
+          // console.log('signerAddress', signerAddress);
           this.setState({
             web3: web3,
             signerAddress: signerAddress,
@@ -71,18 +71,20 @@ class App extends Component {
       date: date,
       dateUnix: dateUnix,
       parity: parity,
-      voucherId: voucherId,
+      // voucherId: voucherId,
     })
   }
 
   getRunningNumber = async () => {
     const GET_RUNNING_NUMBER_URL =
+      // "https://pktfredeemandwalletserver.herokuapp.com/voucher/getVoucherId";
       "https://pktfredeemandwalletserver.herokuapp.com/voucher/getRunningNumber";
     const obj = await (await fetch(GET_RUNNING_NUMBER_URL)).json();
+    // console.log('obj', obj)
     this.setState({
-      runningNumber: obj.runningNumber
+      voucherId: obj.runningNumber
     });
-    console.log("runningNumber", obj.runningNumber);
+    console.log("voucherId", this.state.voucherId);
   };
 
   handleChange = (event, { name, value }) => {
@@ -107,10 +109,12 @@ class App extends Component {
 
   signMessage = async () => {
     const web3 = this.state.web3;
-    // console.log('signerAddress', this.state.signerAddress);
+    console.log('signerAddress', this.state.signerAddress);
     const { runningNumber, amount, voucherId, dateUnix, parity } = this.state;
     const msg = this.concatStringVoucher(runningNumber, voucherId, amount, dateUnix, parity);
+    const msgLength = msg.length
     console.log('msg', msg);
+    console.log('msgLength', msgLength);
     web3.eth.personal.sign(msg, this.state.signerAddress).then(signature => {
 
       const r = signature.slice(0, 66);
@@ -123,7 +127,8 @@ class App extends Component {
           r: r,
           s: s,
           v: v,
-        }
+        },
+        msgLength: msgLength,
       })
 
       // console.log('r: ' + r)
@@ -146,13 +151,13 @@ class App extends Component {
         body: {
           "voucher": this.state.voucherId,
           "runningNumber": this.state.runningNumber,
-          "amount": 2000,
+          "amount": this.state.amount,
           "signature": {
-            "r": "0xe554ed31905aad0624141fcf3ea0866d500c716179e2470ebfc7e3c20c7ab791",
-            "s": "0x748203267daff0bd9964d0c8b874171857c8d47f7f5d89811f3329e95818028b",
-            "v": "27"
+            "r": this.state.signature.r,
+            "s": this.state.signature.s,
+            "v": this.state.signature.v,
           },
-          "expire": "1547300930",
+          "expire": this.state.dateUnix,
           "msgLen": 58
         }
        });
@@ -178,16 +183,6 @@ class App extends Component {
           <Grid.Column style={{ maxWidth: 450 }}>
             <Form size="large" style={{ textAlign: 'left' }}>
               <Segment>
-                <Form.Input
-                  label="Running No."
-                  labelPosition="left"
-                  fluid
-                  icon="address book"
-                  iconPosition="left"
-                  placeholder="Running Number"
-                  value={this.state.runningNumber}
-                  readOnly
-                />
                 <Form.Input
                   label="Voucher ID"
                   labelPosition="left"
