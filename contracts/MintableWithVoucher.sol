@@ -39,24 +39,6 @@ contract MintableWithVoucher is PrivateToken {
         return now;
     }
 
-    // Copyright (c) 2015-2016 Oraclize srl, Thomas Bertani
-    function parseInt(string _value, uint _maxDecimals) internal view returns (uint) {
-        bytes memory bresult = bytes(_value);
-        uint mint = 0;
-        bool decimals = false;
-        for (uint i = 0; i < bresult.length; i++) {
-            if ((bresult[i] >= 48) && (bresult[i] <= 57)) {
-                if (decimals) {
-                    if (_maxDecimals == 0) break;
-                    else _maxDecimals--;
-                }
-                mint *= 10;
-                mint += uint(bresult[i]) - 48;
-            } else if (bresult[i] == 46) decimals = true;
-        }
-        return mint;
-    }
-
     // Implement voucher system
     function redeemVoucher(
         uint8 _v, 
@@ -78,14 +60,10 @@ contract MintableWithVoucher is PrivateToken {
         
         bytes32 hash = keccak256(
             abi.encodePacked(
-                "\x19Ethereum Signed Message:\n",
                 _msgLength,
                 _voucherID,
-                "|",
                 _parityCode,
-                "|",
                 _amount,
-                "|",
                 _expired
             )
         );
