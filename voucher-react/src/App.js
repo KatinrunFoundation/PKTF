@@ -132,7 +132,6 @@ class App extends Component {
     console.log('intMsgLength:', intMsgLength);
 
     web3.eth.personal.sign(intMsg, this.state.signerAddress).then(signature => {
-
       const r = signature.slice(0, 66);
       const s = '0x' + signature.slice(66, 130);
       let v = '0x' + signature.slice(130, 132);
@@ -157,7 +156,7 @@ class App extends Component {
   }
 
   String2Hex = (tmp) => {
-    var str = '';
+    let str = '';
     for (var i = 0; i < tmp.length; i++) {
       str += tmp[i].charCodeAt(0).toString(16);
     }
@@ -187,11 +186,6 @@ class App extends Component {
       "https://pktfredeemandwalletserver.herokuapp.com/voucher/saveVoucher";
     const result = (await post(SAVE_VOUCHER_URL, body)).data;
     console.log('result', result);
-    // fetch(SAVE_VOUCHER_URL, {
-    //   method: 'post',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: body,
-    // });
   }
 
   render() {
