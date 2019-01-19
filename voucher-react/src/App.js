@@ -121,22 +121,15 @@ class App extends Component {
       amount,
       dateUnix
     );
-    // const hexVoucherId = this.String2Hex(voucherId2);
-    // const hexVoucherId = this.String2Hex(voucherId2);
     const msgLength = msg.length
     const intMsgLength = intMsg.length
+
     console.log('msg:', msg);
     console.log('intMsg:', intMsg);
-
     console.log('intParity:', intParity);
-    // const uintParity = web3.utils.toDecimal(parity);
-    // const uintMsg = this.concatStringVoucher(uintVoucherId, uintParity, amount, dateUnix);
-
 
     console.log('msgLength:', msgLength);
     console.log('intMsgLength:', intMsgLength);
-
-
 
     web3.eth.personal.sign(intMsg, this.state.signerAddress).then(signature => {
 
@@ -157,9 +150,9 @@ class App extends Component {
         intParity: intParity,
       })
 
-      // console.log('r: ' + r)
-      // console.log('s: ' + s)
-      // console.log('v: ' + v)
+      console.log('r: ' + r)
+      console.log('s: ' + s)
+      console.log('v: ' + v)
     })
   }
 
@@ -172,7 +165,7 @@ class App extends Component {
   }
 
   concatStringVoucher = (voucherId, parity, amount, expired) => {
-    const string = `|${voucherId}|${parity}|${amount}|${expired}`;
+    const string = `${voucherId}|${parity}|${amount}|${expired}`;
     return string;
   }
 
