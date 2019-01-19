@@ -77,14 +77,13 @@ class App extends Component {
 
   getRunningNumber = async () => {
     const GET_RUNNING_NUMBER_URL =
-      // "https://pktfredeemandwalletserver.herokuapp.com/voucher/getVoucherId";
-      "https://pktfredeemandwalletserver.herokuapp.com/voucher/getRunningNumber";
+      "https://pktfredeemandwalletserver.herokuapp.com/voucher/getRandomVoucherId";
     const obj = await (await fetch(GET_RUNNING_NUMBER_URL)).json();
     // console.log('obj', obj)
     this.setState({
-      voucherId: obj.runningNumber
+      voucherId: obj.voucherId
     });
-    console.log("voucherId", this.state.voucherId);
+    console.log("voucherId", obj.voucherId);
   };
 
   handleChange = (event, { name, value }) => {
