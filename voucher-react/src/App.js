@@ -112,26 +112,27 @@ class App extends Component {
     const web3 = this.state.web3;
     console.log('signerAddress', this.state.signerAddress);
     const { voucherId, parity, amount, dateUnix } = this.state;
-    const msg = this.concatStringVoucher(voucherId, parity, amount, dateUnix);
-    const intVoucherId = web3.utils.toDecimal(this.String2Hex(voucherId));
-    const intParity = web3.utils.toDecimal(this.String2Hex(parity));
-    const intMsg = this.concatStringVoucher(
-      intVoucherId,
-      intParity,
-      amount,
-      dateUnix
-    );
-    const msgLength = msg.length
-    const intMsgLength = intMsg.length
 
-    console.log('msg:', msg);
-    console.log('intMsg:', intMsg);
-    console.log('intParity:', intParity);
+    const intVoucherId = web3.utils.toDecimal('0x' + this.String2Hex(voucherId));
+    const intParity = web3.utils.toDecimal('0x' + this.String2Hex(parity));
 
-    console.log('msgLength:', msgLength);
-    console.log('intMsgLength:', intMsgLength);
+    console.log(intVoucherId);
+    console.log(intParity);
+    console.log(amount);
+    console.log(dateUnix);
 
-    web3.eth.personal.sign(intMsg, this.state.signerAddress).then(signature => {
+    const msg = '0x' + this.padZeros(this.String2Hex(voucherId), 64) 
+    + this.padZeros(this.String2Hex(parity), 64) 
+    + this.padZeros(amount.toString(16), 256) 
+    + this.padZeros(dateUnix.toString(16), 256);
+
+    console.log(msg);
+
+    const hashMsg = web3.utils.keccak256(msg);
+
+    console.log(hashMsg);
+
+    web3.eth.personal.sign(hashMsg, this.state.signerAddress).then(signature => {
       const r = signature.slice(0, 66);
       const s = '0x' + signature.slice(66, 130);
       let v = '0x' + signature.slice(130, 132);
@@ -142,31 +143,27 @@ class App extends Component {
           r: r,
           s: s,
           v: v,
-        },
-        msgLength: msgLength,
-        intMsgLength: intMsgLength,
-        intVoucherId: intVoucherId,
-        intParity: intParity,
+        }
       })
 
+      console.log('v: ' + v)
       console.log('r: ' + r)
       console.log('s: ' + s)
-      console.log('v: ' + v)
     })
   }
 
   String2Hex = (tmp) => {
     let str = '';
-    for (var i = 0; i < tmp.length; i++) {
+    for (let i = 0; i < tmp.length; i++) {
       str += tmp[i].charCodeAt(0).toString(16);
     }
     return str;
   }
 
-  concatStringVoucher = (voucherId, parity, amount, expired) => {
-    const string = `${voucherId}|${parity}|${amount}|${expired}`;
-    return string;
-  }
+  padZeros = (bytes, numBit) => {
+    const pad = (b, maxBytes) => (b.length < maxBytes) ? pad('0'+b, maxBytes):b
+    return pad(bytes, numBit >> 2);
+  };
 
   saveVoucher = async () => {
     const body = {
