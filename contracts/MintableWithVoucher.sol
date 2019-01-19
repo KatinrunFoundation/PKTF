@@ -3,24 +3,24 @@ pragma solidity ^0.4.23;
 import "./PrivateToken.sol";
 
 contract MintableWithVoucher is PrivateToken {
-    mapping(uint256 => bool) usedVouchers;
+    mapping(string => bool) usedVouchers;
     mapping(bytes32 => uint32) holderRedemptionCount;
     
     event VoucherUsed(
-        string runnigNumber, 
+        string voucherID,
+        string parityCode, 
         string amount,  
-        string expired, 
-        string parity, 
+        string expired,  
         address indexed receiver, // use indexed for easy to filter event
         bytes32 socialHash
     );
 
-    function isVoucherUsed(uint256 runnigNumber) public view returns (bool) {
-        return usedVouchers[runnigNumber];
+    function isVoucherUsed(string _voucherID) public view returns (bool) {
+        return usedVouchers[_voucherID];
     }
     
-    function markVoucherAsUsed(uint256 runnigNumber) private {
-        usedVouchers[runnigNumber] = true;
+    function markVoucherAsUsed(string _voucherID) private {
+        usedVouchers[_voucherID] = true;
     }
 
     function getHolderRedemptionCount(bytes32 socialHash) public view returns(uint32) {
@@ -62,50 +62,48 @@ contract MintableWithVoucher is PrivateToken {
         uint8 _v, 
         bytes32 _r, 
         bytes32 _s,
-        string _msgLength,
-        string _runnigNumber,
-        string _amount, 
+        string _voucherID,
+        string _parityCode,
+        string _amount,
         string _expired,
-        string _parity,
+        string _msgLength,
         address _receiver,
         bytes32 _socialHash
     )  
-        public 
-        isNotFreezed
-        {
-
-        uint256 runnigNumber = parseInt(_runnigNumber, 0);
+    public 
+    isNotFreezed
+    {
         uint256 expired = parseInt(_expired, 0);
 
-        require(!isVoucherUsed(runnigNumber), "Voucher's already been used.");
-        require(!isVoucherExpired(expired), "Voucher's expired.");
+        require(!isVoucherUsed(_voucherID), "Voucher has already been used.");
+        require(!isVoucherExpired(expired), "Voucher is expired.");
         
         bytes32 hash = keccak256(
             "\x19Ethereum Signed Message:\n",
             _msgLength,
-            "running:",
-            _runnigNumber,
-            " Voucher for ",
+            " VoucherID ",
+            _voucherID,
+            " ParityCode ",
+            _parityCode,
+            " Amount ",
             _amount,
             " Expired ",
-            _expired,
-            " Parity ",
-            _parity
+            _expired
         );
             
         require(ecrecover(hash, _v, _r, _s) == owner());
 
-        // // Mint
+        // Mint
         _mint(_receiver, parseInt(_amount, 0));
 
-        // // Record new holder
+        // Record new holder
         _recordNewTokenHolder(_receiver);
 
-        markVoucherAsUsed(runnigNumber);
+        markVoucherAsUsed(_voucherID);
 
         holderRedemptionCount[_socialHash]++;
 
-        emit VoucherUsed(_runnigNumber, _amount,  _expired, _parity, _receiver, _socialHash);
+        emit VoucherUsed(_voucherID, _parityCode, _amount,  _expired, _receiver, _socialHash);
     }
     
     /**
