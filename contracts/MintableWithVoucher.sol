@@ -48,7 +48,6 @@ contract MintableWithVoucher is PrivateToken {
         uint64 _parityCode,
         uint256 _amount,
         uint256 _expired,
-        uint16 _msgLength,
         address _receiver,
         bytes32 _socialHash
     )  
@@ -60,7 +59,6 @@ contract MintableWithVoucher is PrivateToken {
         
         bytes32 hash = keccak256(
             abi.encodePacked(
-                _msgLength,
                 _voucherID,
                 _parityCode,
                 _amount,
