@@ -3,23 +3,23 @@ pragma solidity ^0.4.23;
 import "./PrivateToken.sol";
 
 contract MintableWithVoucher is PrivateToken {
-    mapping(string => bool) usedVouchers;
+    mapping(uint64 => bool) usedVouchers;
     mapping(bytes32 => uint32) holderRedemptionCount;
     
     event VoucherUsed(
-        string voucherID,
-        string parityCode, 
-        string amount,  
-        string expired,  
+        uint64 voucherID,
+        uint64 parityCode, 
+        uint256 amount,  
+        uint256 expired,  
         address indexed receiver, // use indexed for easy to filter event
         bytes32 socialHash
     );
 
-    function isVoucherUsed(string _voucherID) public view returns (bool) {
+    function isVoucherUsed(uint64 _voucherID) public view returns (bool) {
         return usedVouchers[_voucherID];
     }
     
-    function markVoucherAsUsed(string _voucherID) private {
+    function markVoucherAsUsed(uint64 _voucherID) private {
         usedVouchers[_voucherID] = true;
     }
 
@@ -62,39 +62,40 @@ contract MintableWithVoucher is PrivateToken {
         uint8 _v, 
         bytes32 _r, 
         bytes32 _s,
-        string _voucherID,
-        string _parityCode,
-        string _amount,
-        string _expired,
-        string _msgLength,
+        uint64 _voucherID,
+        uint64 _parityCode,
+        uint256 _amount,
+        uint256 _expired,
+        uint16 _msgLength,
         address _receiver,
         bytes32 _socialHash
     )  
     public 
     isNotFreezed
     {
-        uint256 expired = parseInt(_expired, 0);
-
         require(!isVoucherUsed(_voucherID), "Voucher has already been used.");
-        require(!isVoucherExpired(expired), "Voucher is expired.");
+        require(!isVoucherExpired(_expired), "Voucher is expired.");
         
         bytes32 hash = keccak256(
-            "\x19Ethereum Signed Message:\n",
-            _msgLength,
-            " VoucherID ",
-            _voucherID,
-            " ParityCode ",
-            _parityCode,
-            " Amount ",
-            _amount,
-            " Expired ",
-            _expired
+            abi.encodePacked(
+                "\x19Ethereum Signed Message:\n",
+                _msgLength,
+                "|",
+                _voucherID,
+                "|",
+                _parityCode,
+                "|",
+                _amount,
+                "|",
+                _expired
+            )
         );
             
         require(ecrecover(hash, _v, _r, _s) == owner());
 
         // Mint
-        _mint(_receiver, parseInt(_amount, 0));
+        // _mint(_receiver, parseInt(_amount, 0));
+        _mint(_receiver, _amount);
 
         // Record new holder
         _recordNewTokenHolder(_receiver);
