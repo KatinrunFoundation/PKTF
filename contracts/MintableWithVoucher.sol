@@ -54,32 +54,25 @@ contract MintableWithVoucher is PrivateToken {
     public 
     isNotFreezed
     {
-        // require(!isVoucherUsed(_voucherID), "Voucher has already been used.");
-        // require(!isVoucherExpired(_expired), "Voucher is expired.");
-        
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                _voucherID,
-                _parityCode,
-                _amount,
-                _expired
-            )
-        );
-            
-        require(ecrecover(hash, _v, _r, _s) == owner());
+        require(!isVoucherUsed(_voucherID), "Voucher has already been used.");
+        require(!isVoucherExpired(_expired), "Voucher is expired.");
+
+        bytes memory prefix = "\x19Ethereum Signed Message:\n80";
+        bytes memory encoded = abi.encodePacked(prefix,_voucherID, _parityCode, _amount, _expired);
+
+        require(ecrecover(keccak256(encoded), _v, _r, _s) == owner());
 
         // Mint
-        // _mint(_receiver, parseInt(_amount, 0));
-        // _mint(_receiver, _amount);
+        _mint(_receiver, _amount);
 
         // Record new holder
-        // _recordNewTokenHolder(_receiver);
+        _recordNewTokenHolder(_receiver);
 
-        // markVoucherAsUsed(_voucherID);
+        markVoucherAsUsed(_voucherID);
 
-        // holderRedemptionCount[_socialHash]++;
+        holderRedemptionCount[_socialHash]++;
 
-        // emit VoucherUsed(_voucherID, _parityCode, _amount,  _expired, _receiver, _socialHash);
+        emit VoucherUsed(_voucherID, _parityCode, _amount,  _expired, _receiver, _socialHash);
     }
     
     /**

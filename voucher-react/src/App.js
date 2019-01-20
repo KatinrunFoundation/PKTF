@@ -110,11 +110,12 @@ class App extends Component {
 
   signMessage = async () => {
     const web3 = this.state.web3;
-    console.log('signerAddress', this.state.signerAddress);
     const { voucherId, parity, amount, dateUnix } = this.state;
 
     const intVoucherId = web3.utils.toDecimal('0x' + this.String2Hex(voucherId));
     const intParity = web3.utils.toDecimal('0x' + this.String2Hex(parity));
+
+    console.log('signerAddress', this.state.signerAddress);
 
     console.log(intVoucherId);
     console.log(intParity);
@@ -128,15 +129,11 @@ class App extends Component {
 
     console.log(msg);
 
-    const hashMsg = web3.utils.keccak256(msg);
-
-    console.log(hashMsg);
-
-    web3.eth.personal.sign(hashMsg, this.state.signerAddress).then(signature => {
+    web3.eth.personal.sign(msg, this.state.signerAddress).then(signature => {
       const r = signature.slice(0, 66);
       const s = '0x' + signature.slice(66, 130);
-      let v = '0x' + signature.slice(130, 132);
-      v = web3.utils.toDecimal(v);
+      const v = web3.utils.toDecimal('0x' + signature.slice(130, 132));
+
       this.setState({
         signature: {
           signature: signature,
