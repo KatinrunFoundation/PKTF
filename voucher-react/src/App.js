@@ -20,7 +20,7 @@ import {
   // DatesRangeInput
 } from "semantic-ui-calendar-react";
 import "./App.css";
-import example_qr_code from "./images/example_qr_code.jpg"
+//import example_qr_code from "./images/example_qr_code.jpg"
 import example_voucher from "./images/example_voucher.png"
 
 class App extends Component {
