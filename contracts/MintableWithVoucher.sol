@@ -112,7 +112,7 @@ contract MintableWithVoucher is PrivateToken {
         * @dev Burns a specific amount of tokens. Only owner can burn themself.
         * @param value The amount of token to be burned.
         */
-    function burn(address account, uint32 value) 
+    function burn(address account, uint256 value) 
         public
         onlyOwner
         isNotFreezed {

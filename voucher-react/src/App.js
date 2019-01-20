@@ -21,6 +21,7 @@ import {
 } from "semantic-ui-calendar-react";
 import "./App.css";
 import example_qr_code from "./images/example_qr_code.jpg"
+import example_voucher from "./images/example_voucher.png"
 
 class App extends Component {
   state = {
@@ -268,7 +269,7 @@ class App extends Component {
           </Grid.Column>
           <Grid.Column>
             <Segment>
-              <Image src={example_qr_code} size='medium' wrapped />
+              <Image src={example_voucher} size='medium' wrapped />
               <Message>
                 <Button color='teal' fluid size='large'>Print</Button>
               </Message>
