@@ -1,5 +1,5 @@
 const PrivateKatinrunFoudation = artifacts.require("./PrivateKatinrunFoudation.sol");
-const shouldFail = require('openzeppelin-solidity/test/helpers/shouldFail');
+const { reverting } = require('openzeppelin-solidity/test/helpers/shouldFail');
 
 contract("PrivateKatinrunFoudation", async (accounts) => {
   let instance;
@@ -97,7 +97,7 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
     assert.ok(result);
 
     //try to claim again
-    await shouldFail.reverting(instance.redeemVoucher(
+    await reverting(instance.redeemVoucher(
       v, r, s,
       string2Decimal(mockData.voucherId),
       string2Decimal(mockData.parity),
@@ -129,7 +129,7 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
 
     assert.ok(signature);
 
-    await shouldFail.reverting(instance.redeemVoucher(
+    await reverting(instance.redeemVoucher(
       v, r, s,
       string2Decimal(mockData.voucherId),
       string2Decimal(mockData.parity),
@@ -163,7 +163,7 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
     for (let i = 0; i < 10; i++) {
       const [rVoucherId, rParity, rAmount] = [generateRandomString(),generateRandomString(),randomAmount()];
       if (rVoucherId !== mockData.voucherId || rParity !== mockData.parity || rAmount !== mockData.amount) {
-        await shouldFail.reverting(instance.redeemVoucher(
+        await reverting(instance.redeemVoucher(
           v, r, s,
           string2Decimal(rVoucherId),
           string2Decimal(rParity),
