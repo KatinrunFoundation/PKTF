@@ -60,7 +60,11 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
 
         // console.log('balance1', balance1)
         // console.log('balance2', balance2)
-        // console.log('balance3', balance3)        
+        // console.log('balance3', balance3)
+
+        verifyBalance(pktf, user1, amount1)
+        verifyBalance(pktf, user2, amount2)
+        verifyBalance(pktf, user3, amount3) 
     })
 
     describe('Test migration', async () => {
@@ -69,6 +73,8 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
                 from: owner
             });
             // console.log('New contract address', newpktf.address);
+            // console.log('Tx hash', newpktf.transactionHash);
+            assert.ok(newpktf.transactionHash)
         })
 
         it("Check holder balance", async () => {
