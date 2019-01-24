@@ -40,6 +40,7 @@ contract MintableWithVoucher is PrivateToken {
     }
 
     // Implement voucher system
+    // * Amount is in unit of ether *
     function redeemVoucher(
         uint8 _v, 
         bytes32 _r, 
@@ -62,7 +63,7 @@ contract MintableWithVoucher is PrivateToken {
 
         require(ecrecover(keccak256(encoded), _v, _r, _s) == owner());
 
-        // Mint
+        // Mint in unit of ether
         _mint(_receiver, _amount);
 
         // Record new holder

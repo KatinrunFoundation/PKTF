@@ -111,10 +111,10 @@ class App extends Component {
 
   signMessage = async () => {
     const web3 = this.state.web3;
-    const { voucherId, parity, dateUnix } = this.state;
-    let { amount } = this.state;
+    const { voucherId, parity, dateUnix, amount } = this.state;
+    // let { amount } = this.state;
     // console.log('amount', amount)
-    amount = web3.utils.toWei(amount.toString(), 'ether');
+    // amount = web3.utils.toWei(amount.toString(), 'ether');
     // console.log('amount', amount)
     const intVoucherId = web3.utils.toDecimal('0x' + this.String2Hex(voucherId));
     const intParity = web3.utils.toDecimal('0x' + this.String2Hex(parity));
@@ -166,12 +166,13 @@ class App extends Component {
     return pad(bytes, numBit >> 2);
   };
 
+  // Voucher amount is in unit of ether
   saveVoucher = async () => {
-    const web3 = this.state.web3;
+    // const web3 = this.state.web3;
     const body = {
       "voucherId": this.state.voucherId,
       "intVoucherId": this.state.intVoucherId,
-      "amount": web3.utils.toWei(this.state.amount.toString(), 'ether'),
+      "amount": this.state.amount,
       "signature": {
         "r": this.state.signature.r,
         "s": this.state.signature.s,
