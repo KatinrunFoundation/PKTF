@@ -167,10 +167,11 @@ class App extends Component {
   };
 
   saveVoucher = async () => {
+    const web3 = this.state.web3;
     const body = {
       "voucherId": this.state.voucherId,
       "intVoucherId": this.state.intVoucherId,
-      "amount": this.state.amount,
+      "amount": web3.utils.toWei(this.state.amount.toString(), 'ether'),
       "signature": {
         "r": this.state.signature.r,
         "s": this.state.signature.s,
