@@ -1,4 +1,6 @@
 {
+  "name": "katinrun",
+  "license": "MIT",
   "scripts": {
     "compile": "truffle compile",
     "migrate": "truffle migrate --reset",
