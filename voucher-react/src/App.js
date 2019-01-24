@@ -45,7 +45,7 @@ class App extends Component {
     },
   };
   async componentDidMount() {
-    const date = moment().add(1, 'month').format("DD-MM-YYYY");
+    const date = moment("28-01-2019", "DD-MM-YYYY")
     const dateUnix = moment(date, "DD-MM-YYYY").unix();
     const parity = this.generateRandomString();
     // const voucherId = this.generateRandomString();
@@ -111,8 +111,11 @@ class App extends Component {
 
   signMessage = async () => {
     const web3 = this.state.web3;
-    const { voucherId, parity, amount, dateUnix } = this.state;
-
+    const { voucherId, parity, dateUnix } = this.state;
+    let { amount } = this.state;
+    // console.log('amount', amount)
+    amount = web3.utils.toWei(amount.toString(), 'ether');
+    // console.log('amount', amount)
     const intVoucherId = web3.utils.toDecimal('0x' + this.String2Hex(voucherId));
     const intParity = web3.utils.toDecimal('0x' + this.String2Hex(parity));
 
