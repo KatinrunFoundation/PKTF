@@ -18,8 +18,8 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
     let oldBalance2;
     let oldBalance3;
 
-    async function verifyBalance(user, expectedBalance) {
-        const balance = await pktf.balanceOf(user)
+    async function verifyBalance(contract, user, expectedBalance) {
+        const balance = await contract.balanceOf(user)
         assert.equal(balance.toString(10), expectedBalance, `Balance should be ${expectedBalance}`)
     }
 
@@ -80,9 +80,9 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
             // console.log('newBalance2', newBalance2)
             // console.log('newBalance3', newBalance3)
 
-            verifyBalance(user1, oldBalance1)
-            verifyBalance(user2, oldBalance2)
-            verifyBalance(user3, oldBalance3)
+            verifyBalance(newpktf, user1, oldBalance1)
+            verifyBalance(newpktf, user2, oldBalance2)
+            verifyBalance(newpktf, user3, oldBalance3)
         })
     })
 })
