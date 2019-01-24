@@ -1,5 +1,6 @@
 const PrivateKatinrunFoudation = artifacts.require("./PrivateKatinrunFoudation.sol")
 const BigNumber = require('bignumber.js');
+const truffleAssert = require('truffle-assertions');
 
 
 contract("PrivateKatinrunFoudation", async (accounts) => {
@@ -42,39 +43,6 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
   async function verifyTokenHolders() {
     const numberOfTokenHolders = await instance.numberOfTokenHolders()
     assert.equal(numberOfTokenHolders.toString(10), expectedTokenHolders.toString(10), `Holders count should be ${expectedTokenHolders.toString(10)}`)
-  }
-
-  async function burnOwner(value, sender, targetAccount) {
-    amountToBurn = web3.utils.toWei(value, "ether")
-    try {
-      if (targetAccount !== undefined) {
-        await instance.burn(
-          targetAccount,
-          amountToBurn,
-          {from: sender}
-        )
-      } else {
-        await instance.burn(
-          amountToBurn,
-          {from: sender}
-        )
-      }
-      const numberOfTokenHolders = await instance.numberOfTokenHolders()
-      const totalSupply = await instance.totalSupply()
-      const expectedTotalSupplyStrig = web3.utils.toWei(expectedTotalSupply.minus(BigNumber(value)).toString(10), "ether")
-
-      assert.equal(numberOfTokenHolders.toString(10), expectedTokenHolders.minus(BigNumber('1')).toString(10), `Holders count should be ${expectedTokenHolders.toString(10)}`)
-      assert.equal(totalSupply.toString(10), expectedTotalSupplyStrig, `Total supply should be ${expectedTotalSupplyStrig}`)
-      
-      if (targetAccount !== undefined) {
-        const isTokenHolder = await instance.isTokenHolder(targetAccount)
-        assert.equal(isTokenHolder, false)
-      }
-    } catch (err) {
-      assert(err);
-      return;
-    }
-    assert(false)
   }
 
   describe('Mint to owner', async() => {
@@ -153,27 +121,69 @@ contract("PrivateKatinrunFoudation", async (accounts) => {
     })
   })
 
-  describe('Burn Owner', async() => {
-    it("Sender is Owner #1", async() => {
-      const amountToBurn = web3.utils.toWei('1000000', "ether")
-      await burnOwner(amountToBurn, owner, undefined)
+  describe('Burn Owner Address', async() => {
+    it('Sender is Owner', async() => {
+      const sender = owner
+      const amountToBurn = web3.utils.toWei('1000000', 'ether')
+      const balanceBefore = await instance.balanceOf(owner)
+
+      // Global variable
+      expectedTotalSupply = expectedTotalSupply.minus(BigNumber('1000000'))
+
+      await truffleAssert.passes(
+        // Call burn(uint256 value)
+        instance.burn(amountToBurn, {from: sender})
+      );
+
+      await verifyBalance(owner, BigNumber(balanceBefore).minus(BigNumber(amountToBurn)).toString(10))
+      await verifyTotalSupply()
     })
 
-    it("Sender is not Owner #2", async() => {
-      const amountToBurn = '1000000'
-      await burnOwner(amountToBurn, user1, undefined)
+    it('Sender is not Owner', async() => {
+      const sender = user1
+      const amountToBurn = web3.utils.toWei('1000000', 'ether')
+
+      await truffleAssert.reverts(
+        // Call burn(uint256 value)
+        instance.burn(amountToBurn, {from: sender}), 
+        "VM Exception while processing transaction: revert"
+      );
+
+      await verifyTotalSupply()
     })
   })
 
-  describe('Burn specific account', async() => {
-    it("Sender is Owner #1", async() => {
-      const amountToBurn = web3.utils.toWei('1000000', "ether")
-      await burnOwner(amountToBurn, owner, user1)
+  describe('Burn Other Address', async() => {
+    it('Sender is Owner', async() => {
+      const targetAddr = user1
+      const sender = owner
+      const amountToBurn = web3.utils.toWei('1000000', 'ether')
+      const balanceBefore = await instance.balanceOf(targetAddr)
+
+      // Global variable
+      expectedTotalSupply = expectedTotalSupply.minus(BigNumber('1000000'))
+
+      await truffleAssert.passes(
+        // Call burn(address account, uint256 value)
+        instance.burn(targetAddr, amountToBurn, {from: sender})
+      );
+
+      await verifyBalance(targetAddr, BigNumber(balanceBefore).minus(BigNumber(amountToBurn)).toString(10))
+      await verifyTotalSupply()
     })
 
-    it("Sender is not Owner #2", async() => {
-      const amountToBurn = '1000000'
-      await burnOwner(amountToBurn, user1, user1)
+    it('Sender is not Owner', async() => {
+      const targetAddr = user1
+      const sender = user1
+      const amountToBurn = web3.utils.toWei('1000000', 'ether')
+
+      await truffleAssert.reverts(
+        // Call burn(address account, uint256 value)
+        instance.burn(targetAddr, amountToBurn, {from: sender}),
+        "VM Exception while processing transaction: revert"
+      );
+
+      await verifyTotalSupply()
     })
   })
 })
