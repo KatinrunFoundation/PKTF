@@ -1,10 +1,7 @@
 const admin = require('firebase-admin');
 const voucherModel = require('../models/voucher')
 const config = require('../models/systemConfig')
-//----- dev
-// const serviceAccount = require("../key/pktfredeemandwalletserver-fa378f30dc93.json");
 
-//----- prod
 const serviceAccount = require("../key/pktfredeemandwalletserver-prod-firebase-adminsdk-dbxaw-0e2bedc0ee.json");
 
 const dateFns = require('date-fns')
