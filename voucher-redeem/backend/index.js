@@ -3,6 +3,8 @@ const helmet = require("helmet");
 const bodyParser = require('body-parser');
 const voucherController = require('./controllers/voucherController');
 const cors = require("cors");
+const cron = require('node-cron')
+const schedulerTaskService = require('./services/schedulerTaskService')
 
 const app = express();
 
@@ -36,6 +38,11 @@ app.use(function(err, req, res, next) {
     res.send({code: err.status || 500, data: err.message});
     // res.render('error');
 });
+
+cron.schedule('* * * * *', () => {
+    console.log('Task job run')
+    schedulerTaskService.runTask();
+})
 
 
 var server = app.listen(process.env.PORT || 8080, function () {

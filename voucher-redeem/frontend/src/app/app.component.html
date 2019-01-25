@@ -33,14 +33,11 @@
       <div class="border rounded">
         <div class="row m-3 justify-content-md-center">
             <div class="col-md-auto mt-4">
-              <div class="form-group ">
-                  <label>Transaction Id: </label>
-                  <a href="https://ropsten.etherscan.io/tx/{{returnTransactionId}}" target="_blank">{{returnTransactionId}}</a>
-              </div>
-              <div class="form-group ">
-                  <label>Voucher amount: </label>
-                  <span>{{voucherAmount}}&nbsp; PKTF</span>
-              </div>
+              <p>
+                Your redemption request is in queue and waiting to be processed.<br/>
+                Estimate time to complete your request is <b>{{waitingTime}}</b> mins.<br/>
+                You can close this page and later check the status of PKTF token through your Ethereum Wallet.
+              </p>
             </div>
         </div>
       </div>

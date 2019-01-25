@@ -1,18 +1,14 @@
 const admin = require('firebase-admin');
-const walletService =require("./walletService")
 const voucherModel = require('../models/voucher')
-const serviceAccount = require("[SERVICE ACCOUNT FROM FIREBASE]");
+const config = require('../models/systemConfig')
+//----- dev
+// const serviceAccount = require("../key/pktfredeemandwalletserver-fa378f30dc93.json");
+
+//----- prod
+const serviceAccount = require("../key/pktfredeemandwalletserver-prod-firebase-adminsdk-dbxaw-0e2bedc0ee.json");
 
 const dateFns = require('date-fns')
 const util = require('../util')
-
-const redeemedVoucher = {
-    socialType: "",
-    socialId: "",
-    transactionId: "",
-    redeemDtm:"",
-    ...voucherModel
-}
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
@@ -87,10 +83,10 @@ redeemVoucher = async (voucherParam) => {
         const voucherCode = voucherParamSplit[0];
         const parity = voucherParamSplit[1];
         const voucherObj = await db.collection("Vouchers").doc(voucherCode).get();
-        if(voucherObj){
+        if(voucherObj.exists){
             try{
                 let voucher = voucherObj.data();
-                const socialId = voucherParam.socialId
+                const socialId = config.dummy //voucherParam.socialId
 
                 voucher.voucherStatus = "R";
                 await db.collection("Vouchers").doc(voucherCode).set(voucher);
@@ -99,23 +95,13 @@ redeemVoucher = async (voucherParam) => {
                 voucher.parity = parity;
                 voucher.socialId = socialId
                 console.log("Voucher", voucher);
-                let transactionId = await walletService.redeemVoucherFromBlockchain(voucher);
 
-                redeemedVoucher.socialType = voucherParam.socialType
-                redeemedVoucher.socialId = socialId
-                redeemedVoucher.transactionId = transactionId
-                redeemedVoucher.voucherId = voucher.voucherId
-                redeemedVoucher.amount = voucher.amount
-                redeemedVoucher.signature = voucher.signature
-                redeemedVoucher.expire = voucher.expire
-                redeemedVoucher.voucherStatus = voucher.voucherStatus
-                redeemedVoucher.redeemDtm = dateFns.getTime(new Date())
-                await db.collection('RedeemedVouchers').doc(voucherCode).set(redeemedVoucher);
-                await db.collection('Vouchers').doc(voucherCode).delete();
+                //----- add voucher to queue
+                await db.collection("QueueVouchers").doc(dateFns.getTime(new Date()).toString()).set(voucher);
+                let allQueueVouchers = await db.collection("QueueVouchers").get();
                 return {
                     message:"success",
-                    transactionId:transactionId,
-                    amount: voucher.amount
+                    waitingTime: allQueueVouchers._size * config.avarageWaitingTime
                 }
             }catch(err){
                 throw new Error(err);
@@ -127,6 +113,8 @@ redeemVoucher = async (voucherParam) => {
         throw new Error('Not found redeem code');
     }
 }
+
+
 
 module.exports = {
     saveVoucher,

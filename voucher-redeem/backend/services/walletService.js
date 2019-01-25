@@ -4,10 +4,12 @@ const Web3 = require("web3");
 const PrivateKatinrunFoudation = require("../abi/PrivateKatinrunFoudation");
 const utils = require("../util")
 const axios = require("axios");
-const privateKey = require("[BLOCKCHAIN'S PRIVATE KEY]");
+const privateKey = require("../privateKey");
 
 redeemVoucherFromBlockchain = async (voucherParam) => {
     const ethGas = await getDefaultEthGas();
+    console.log("privateKey: ", privateKey.key);
+    // console.log('ethGas: ', ethGas)
     const provider = new Web3.providers.HttpProvider(config.provider)
     const _web3 = new Web3(provider)
     const pktf = new _web3.eth.Contract(PrivateKatinrunFoudation.abi, config.pktfAddr)
@@ -39,6 +41,9 @@ redeemVoucherFromBlockchain = async (voucherParam) => {
     }catch(err){
         console.error(err);
         throw new Error(err)
+
+        //------ for dev only
+        // return "0x73671a6155b0994d373e5f9d267db5831606de8d26b9d7702d3cccafc078ac48";
     }
 }
 

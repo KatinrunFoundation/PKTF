@@ -7,6 +7,7 @@ import { AngularFireAuth } from 'angularfire2/auth';
 import { ActivatedRoute } from '@angular/router';
 import * as Web3 from 'web3'
 import swal from 'sweetalert2'
+import * as dateFns from 'date-fns'
 
 @Component({
   selector: 'app-root',
@@ -27,6 +28,7 @@ export class AppComponent implements OnInit {
   public amount = 0
   public _web3: any
   public _account: any
+  public waitingTime = ''
   public redeemParam = {
     redeemCode: '',
     socialType: '',
@@ -101,7 +103,22 @@ export class AppComponent implements OnInit {
             text: 'Please contact Katinrun staff'
           })
         } else {
-          this.modalAuthenWithSocial.show()
+          // this.modalAuthenWithSocial.show()
+          if (voucher.voucherStatus === 'R') {
+            (<any>swal).fire({
+              title: '',
+              text: 'Your redemption request is in progress. You can close this page and later check the status of PKTF token through your Ethereum Wallet.',
+              imageUrl: `${environment.endpointAssets}/assets/images/katin-logo.png`,
+              imageWidth: 100,
+              imageHeight: 100,
+            })
+          } else {
+            try {
+              await this.doRedeemVoucher()
+            } catch (redeemError) {
+              console.error('Error redeem voucher', redeemError)
+            }
+          }
         }
       }
     } else {
@@ -145,23 +162,26 @@ export class AppComponent implements OnInit {
 
   private async doRedeemVoucher() {
     // console.log('Redeem voucher')
-    if (this.userLogedIn.user) {
-      this.redeemParam.socialType = this.userLogedIn.user.providerId + ':' + this.userLogedIn.user.displayName + ':' + this.userLogedIn.user.email
-      this.redeemParam.socialId = this.userLogedIn.token
+    // if (this.userLogedIn.user) {
+      // this.redeemParam.socialType = this.userLogedIn.user.providerId + ':' + this.userLogedIn.user.displayName + ':' + this.userLogedIn.user.email
+      // this.redeemParam.socialId = this.userLogedIn.token
       // console.log('this.redeemParam: ', this.redeemParam)
+      this.redeemParam.socialType = 'DUMMY-VALUE'
+      this.redeemParam.socialId = 'DUMMY-VALUE'
       try {
         const result = await this.redemptionVoucherService.redeemVoucher(this.redeemParam).toPromise()
         if (result) {
           const successResult = await (<any>swal).fire({
-            title: 'Voucher redeemed',
-            text: '',
+            title: 'Success',
+            text: 'Your redemption request is in queue',
             type: 'success'
           })
           if (successResult.value) {
+            this.waitingTime = dateFns.format(dateFns.addSeconds(new Date(0), result.waitingTime), 'mm:ss');
             this.isShowRedeemFunction = false
             this.isShowTransactionId = true
-            this.returnTransactionId = result.transactionId
-            this.voucherAmount = result.amount
+            // this.returnTransactionId = result.transactionId
+            // this.voucherAmount = result.amount
           }
           console.log('redeem success!!')
         }
@@ -172,6 +192,6 @@ export class AppComponent implements OnInit {
           text: 'Please contact Katinrun staff'
         })
       }
-    }
+    // }
   }
 }

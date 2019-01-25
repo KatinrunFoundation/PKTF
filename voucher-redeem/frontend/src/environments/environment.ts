@@ -8,11 +8,11 @@ export const environment = {
   endpointAssets: 'http://localhost:4200',
   endpoint: 'http://localhost:8080',
   firebase: {
-    apiKey: '',
-    authDomain: '',
-    databaseURL: '',
-    projectId: '',
-    storageBucket: '',
-    messagingSenderId: ''
+    apiKey: 'AIzaSyBTy2r9WBShG9dptmvynfmSmFAdIpCDWQE',
+    authDomain: 'pktfredeemandwalletserver.firebaseapp.com',
+    databaseURL: 'https://pktfredeemandwalletserver.firebaseio.com',
+    projectId: 'pktfredeemandwalletserver',
+    storageBucket: 'pktfredeemandwalletserver.appspot.com',
+    messagingSenderId: '400276150615'
   }
 };
