@@ -64,7 +64,7 @@ contract MintableWithVoucher is PrivateToken {
         require(ecrecover(keccak256(encoded), _v, _r, _s) == owner());
 
         // Mint in unit of ether
-        _mint(_receiver, _amount);
+        _mint(_receiver, _amount * 10 ** 18);
 
         // Record new holder
         _recordNewTokenHolder(_receiver);
