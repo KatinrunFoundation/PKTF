@@ -1,14 +1,3 @@
-//--- dev
-// const config = {
-//     network: 'ropsten',
-//     provider: 'https://ropsten.infura.io',
-//     ethereumNode: 'https://ropsten.etherscan.io/address/0xc3b3e0377aeee8d4b010f2aacb8ca3303a24e507',
-//     pktfAddr: '0xc3b3e0377aeee8d4b010f2aacb8ca3303a24e507',
-//     avarageWaitingTime: 15,
-//     dummy: 'DUMMY-VALUE'
-// }
-
-//--- prod
 const config = {
     network: 'mainnet',
     provider: 'https://mainnet.infura.io',
