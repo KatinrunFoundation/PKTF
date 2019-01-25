@@ -42,8 +42,6 @@ redeemVoucherFromBlockchain = async (voucherParam) => {
         console.error(err);
         throw new Error(err)
 
-        //------ for dev only
-        // return "0x73671a6155b0994d373e5f9d267db5831606de8d26b9d7702d3cccafc078ac48";
     }
 }
 
