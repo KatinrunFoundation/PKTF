@@ -40,3 +40,9 @@ infura-api.secret
 mnemonic.secret
 voucher-vue
 voucher-vue/
+
+
+voucher-redeem/backend/.DS_Store
+voucher-redeem/backend/key
+voucher-redeem/backend/key/
+voucher-redeem/backend/privateKey.js
