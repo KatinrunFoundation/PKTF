@@ -20,8 +20,8 @@ import {
   // DatesRangeInput
 } from "semantic-ui-calendar-react";
 import "./App.css";
-//import example_qr_code from "./images/example_qr_code.jpg"
-import example_voucher from "./images/example_voucher.png"
+import example_voucher from "./images/example_voucher.png";
+import QRCode from 'qrcode.react';
 
 class App extends Component {
   state = {
@@ -42,12 +42,14 @@ class App extends Component {
       r: '',
       s: '',
       v: '',
-    },
+    }
   };
+
   async componentDidMount() {
     const date = moment("28-01-2019", "DD-MM-YYYY")
     const dateUnix = moment(date, "DD-MM-YYYY").unix();
     const parity = this.generateRandomString();
+
     // const voucherId = this.generateRandomString();
     this.getRunningNumber();
     console.log('date', date);
@@ -74,8 +76,23 @@ class App extends Component {
       date: date,
       dateUnix: dateUnix,
       parity: parity,
-      // voucherId: voucherId,
     })
+  }
+
+  componentDidUpdate() {
+    const ctx = document.getElementById("myqr").getContext('2d');
+    const voucherCanvas = document.getElementById("voucherCanvas").getContext('2d');
+
+    const logo = document.getElementById("logo");
+    ctx.drawImage(logo,17.5,17.5, 10, 10);
+
+    const voucher = document.getElementById("voucher");
+
+    voucherCanvas.drawImage(voucher,0,0,2048,1310);
+    voucherCanvas.drawImage(document.getElementById("myqr"),220,550,512,512);
+
+    voucherCanvas.font = '52pt GlacialIndifference';
+    voucherCanvas.fillText(this.state.voucherId + "-" + this.state.parity, 350, 530);
   }
 
   getRunningNumber = async () => {
@@ -196,7 +213,8 @@ class App extends Component {
         }}
       >
         <Header as="h2" color="teal" textAlign="center">
-          <Image src="/logo.png" width={60} height={60} /> Create Event Voucher
+          <Image id="voucher" src="/voucher.png" style={{position: 'absolute', display: 'none'}} />
+          <Image id="logo" src="/logo.png" width={60} height={60} /> Create Event Voucher
         </Header>
         <Divider />
         <Grid
@@ -274,7 +292,14 @@ class App extends Component {
           </Grid.Column>
           <Grid.Column>
             <Segment>
-              <Image src={example_voucher} size='medium' wrapped />
+              <QRCode id="myqr"
+                value="https://pktfredemptionvoucher.herokuapp.com/pktfRedemptionVoucher?redeemCode=o5T9t-xxx123"
+                style={{display: 'none'}}
+                size={512}
+                includeMargin={true}
+              />
+              <span style={{"font-family": 'GlacialIndifference'}}>&nbsp;</span>
+              <canvas id="voucherCanvas" class="voucherCanvas"  width="2048" height="1310"></canvas>
               <Message>
                 <Button color='teal' fluid size='large'>Print</Button>
               </Message>
