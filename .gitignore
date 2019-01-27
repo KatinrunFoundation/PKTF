@@ -5,3 +5,4 @@ build/
 npm-debug.log
 infura-api.secret
 mnemonic.secret
+.DS_Store
