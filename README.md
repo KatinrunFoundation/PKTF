@@ -1,5 +1,7 @@
 ## 1.0 Release
 
+<br />
+
 # Architecture and design
 
 <br />
@@ -14,6 +16,7 @@
 
 * <a href="https://medium.com/@serial_coder/architecture-design-of-ethereum-based-private-katinrun-foundation-token-9306f65ac85e">Architecture Design of Ethereum-Based Private Katinrun Foundation Token</a><br />
 
+<br />
 
 # Run Test
 ## Install and run gannache-cli
@@ -27,6 +30,7 @@ ganache-cli
 npm install
 npm run test
 ```
+<br />
 
 # Deploy
 ## Kovan network
