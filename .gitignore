@@ -46,3 +46,5 @@ voucher-redeem/backend/.DS_Store
 voucher-redeem/backend/key
 voucher-redeem/backend/key/
 voucher-redeem/backend/privateKey.js
+
+yarn.lock
