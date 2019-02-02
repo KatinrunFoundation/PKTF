@@ -6,7 +6,7 @@ npm install
 ```
 
 ## Install heroku-cli
-[Heroku] (https://devcenter.heroku.com/articles/heroku-cli)
+[Heroku](https://devcenter.heroku.com/articles/heroku-cli)
 ```sh
 npm install -g heroku
 ```
