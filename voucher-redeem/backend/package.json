@@ -1,0 +1,34 @@
+{
+  "name": "redemptionandwalletserver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zent-bank/RedemptionAndWalletServer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zent-bank/RedemptionAndWalletServer/issues"
+  },
+  "homepage": "https://github.com/zent-bank/RedemptionAndWalletServer#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "body-parser": "^1.19.0",
+    "cors": "*",
+    "date-fns": "^2.16.1",
+    "express": "^4.17.1",
+    "firebase-admin": "^9.3.0",
+    "helmet": "^4.1.1",
+    "moment": "^2.29.1",
+    "node": "^15.0.1",
+    "node-cron": "*",
+    "web3": "*",
+    "web3-eth-accounts": "*"
+  }
+}

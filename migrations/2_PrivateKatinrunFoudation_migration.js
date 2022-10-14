@@ -1,5 +1,5 @@
 let PrivateKatinrunFoudation = artifacts.require("./PrivateKatinrunFoudation.sol"); 
   
 module.exports = function(deployer) {  
-  deployer.deploy(PrivateKatinrunFoudation);  
+  deployer.deploy(PrivateKatinrunFoudation, 0);  
 };
