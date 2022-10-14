@@ -39,25 +39,8 @@ contract MintableWithVoucher is PrivateToken {
         return now;
     }
 
-    // Copyright (c) 2015-2016 Oraclize srl, Thomas Bertani
-    function parseInt(string _value, uint _maxDecimals) internal view returns (uint) {
-        bytes memory bresult = bytes(_value);
-        uint mint = 0;
-        bool decimals = false;
-        for (uint i = 0; i < bresult.length; i++) {
-            if ((bresult[i] >= 48) && (bresult[i] <= 57)) {
-                if (decimals) {
-                    if (_maxDecimals == 0) break;
-                    else _maxDecimals--;
-                }
-                mint *= 10;
-                mint += uint(bresult[i]) - 48;
-            } else if (bresult[i] == 46) decimals = true;
-        }
-        return mint;
-    }
-
     // Implement voucher system
+    // * Amount is in unit of ether *
     function redeemVoucher(
         uint8 _v, 
         bytes32 _r, 
@@ -66,7 +49,6 @@ contract MintableWithVoucher is PrivateToken {
         uint64 _parityCode,
         uint256 _amount,
         uint256 _expired,
-        uint16 _msgLength,
         address _receiver,
         bytes32 _socialHash
     )  
@@ -75,27 +57,14 @@ contract MintableWithVoucher is PrivateToken {
     {
         require(!isVoucherUsed(_voucherID), "Voucher has already been used.");
         require(!isVoucherExpired(_expired), "Voucher is expired.");
-        
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                "\x19Ethereum Signed Message:\n",
-                _msgLength,
-                "|",
-                _voucherID,
-                "|",
-                _parityCode,
-                "|",
-                _amount,
-                "|",
-                _expired
-            )
-        );
-            
-        require(ecrecover(hash, _v, _r, _s) == owner());
 
-        // Mint
-        // _mint(_receiver, parseInt(_amount, 0));
-        _mint(_receiver, _amount);
+        bytes memory prefix = "\x19Ethereum Signed Message:\n80";
+        bytes memory encoded = abi.encodePacked(prefix,_voucherID, _parityCode, _amount, _expired);
+
+        require(ecrecover(keccak256(encoded), _v, _r, _s) == owner());
+
+        // Mint in unit of ether
+        _mint(_receiver, _amount * 10 ** 18);
 
         // Record new holder
         _recordNewTokenHolder(_receiver);
